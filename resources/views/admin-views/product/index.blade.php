@@ -205,7 +205,7 @@
                                                     <div class="form-group">
                                                         <label class="input-label">{{translate('tax_Type')}}</label>
                                                         <select name="tax_type" class="form-control js-select2-custom" id="tax_type">
-                                                            <option disabled>---{{translate('select')}}---</option>
+                                                            {{-- <option disabled>---{{translate('select')}}---</option> --}}
                                                             <option selected  value="percent">{{translate('percentage')}}</option>
                                                             <option value="amount">{{translate('amount')}}</option>
                                                         </select>
