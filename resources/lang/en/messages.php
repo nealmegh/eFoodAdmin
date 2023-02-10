@@ -2234,4 +2234,8 @@
   'Removed Successfully!' => 'Removed Successfully!',
   'ex: 0.00' => 'ex: 0.00 qwe',
   'Item type is required!' => 'Item type is required!',
+  'Number is ready to register' => 'Number is ready to register',
+  'Sides' => 'Sides',
+  'Drinks' => 'Drinks',
+  'add drinks' => 'Add drinks',
 );
