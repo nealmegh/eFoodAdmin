@@ -13,6 +13,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Rap2hpoutre\FastExcel\FastExcel;
 use function App\CentralLogics\translate;
 use Carbon\Carbon;
@@ -144,6 +145,8 @@ class OrderController extends Controller
         $ordered_time = Carbon::createFromFormat('Y-m-d H:i:s', date("Y-m-d H:i:s", strtotime($delivery_date_time)));
         $remaining_time = $ordered_time->add($order['preparation_time'], 'minute')->format('Y-m-d H:i:s');
         $order['remaining_time'] = $remaining_time;
+        
+        Log::info($order);
 
         return view('admin-views.order.order-view', compact('order'));
     }

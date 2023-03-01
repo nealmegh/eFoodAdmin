@@ -152,6 +152,10 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
         Route::group(['prefix' => 'product', 'as' => 'product.', 'middleware' => ['module:product_management']], function () {
             Route::get('add-new', 'ProductController@index')->name('add-new');
             Route::post('variant-combination', 'ProductController@variant_combination')->name('variant-combination');
+            // Added by Sopan
+            Route::post('add-items', 'ProductController@add_items')->name('add-items');
+            Route::post('add-sides-or-drinks', 'ProductController@add_sides_or_drinks')->name('add-sides-or-drinks');
+            //Added by Sopan end
             Route::post('store', 'ProductController@store')->name('store');
             Route::get('edit/{id}', 'ProductController@edit')->name('edit');
             Route::post('update/{id}', 'ProductController@update')->name('update');

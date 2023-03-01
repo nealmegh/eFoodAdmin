@@ -106,8 +106,17 @@
                     @php($total_tax=0)
                     @php($total_dis_on_pro=0)
                     @php($add_ons_cost=0)
+                    {{-- Added by Me --}}
+                    @php($exta_items_cost=0)   
                     @foreach($order->details as $detail)
                         @if($detail->product)
+                        {{-- Added by Me --}}
+                            @php($product_details = json_decode($detail['product_details'], true))
+                            @php($structure = json_decode($product_details["structure"],true))
+                            @php($items=json_decode($detail['items'],true))
+                            @php($total_free = $product_details["item_ttl_free"]);
+                            @php($exta_items_quantity=0)
+                            @php($items_price=0)
                             @php($add_on_qtys=json_decode($detail['add_on_qtys'],true))
                             <tr>
                                 <td class="">
@@ -143,9 +152,46 @@
                                         </div>
                                         @php($add_ons_cost+=$addon['price']*$add_on_qty)
                                     @endforeach
+                                {{-- Added by Me --}}
+                                    @if ($total_free > 0)
+                                            <strong><u>Items(Free: {{$total_free}}) : </u></strong>
+                                        
+                                            
+                                    @else
+                                        <strong><u>{{translate('Items : ')}}</u></strong>
+                                        
+                                    @endif
+                                    @foreach($items as $key3 =>$item)
+
+                                        <div class="font-size-sm text-body">
+                                            <span>{{$item['name']}}(Free: {{$structure[$key3]["item_freeAmount"]}}) :  </span>
+                                            <span class="font-weight-bold">
+                                                {{$item["quantity"]}}
+                                            </span>
+                                        </div>
+                                        {{-- @php($add_ons_cost+=$addon['price']*$add_on_qty) --}}
+                                        @php($amount_to_pay = 0)
+                                        @if ($item["quantity"] > $structure[$key3]["item_freeAmount"])
+                                            @php($pay_qty=$item["quantity"] - $structure[$key3]["item_freeAmount"])
+                                            @php($exta_items_quantity+=$pay_qty)
+                                            @if ($exta_items_quantity <=$total_free)
+                                                @php($amount_to_pay = 0)
+                                            @else
+                                                @php($amount_to_pay = $structure[$key3]["item_Price"]*$pay_qty)
+                                            @endif
+                                        @endif
+                                {{-- @php(Illuminate\Support\Facades\Log::info($amount_to_pay))                 --}}
+                                        @php($items_price += $amount_to_pay)
+                                    @endforeach
+                                    @php($exta_items_cost += $items_price)
+                                    @if (count($items))
+                                        Items Price: {{ \App\CentralLogics\Helpers::set_symbol($items_price) }}
+                                    @endif
 
                                     {{translate('Discount : ')}}{{ \App\CentralLogics\Helpers::set_symbol($detail['discount_on_product']) }}
                                 </td>
+
+                                
                                 <td style="width: 28%;padding-right:4px; text-align:right">
                                     @php($amount=($detail['price']-$detail['discount_on_product'])*$detail['quantity'])
                                     {{ \App\CentralLogics\Helpers::set_symbol($amount) }}
@@ -172,9 +218,12 @@
                                 <hr>
                             </dd>
 
+                            <dt class="col-6">{{translate('Extra Items Cost:')}}</dt>
+                            <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($exta_items_cost) }}</dd>
+
                             <dt class="col-6">{{translate('Subtotal:')}}</dt>
                             <dd class="col-6">
-                                {{ \App\CentralLogics\Helpers::set_symbol($sub_total+$total_tax+$add_ons_cost) }}</dd>
+                                {{ \App\CentralLogics\Helpers::set_symbol($sub_total+$total_tax+$add_ons_cost+$exta_items_cost) }}</dd>
                             <dt class="col-6">{{translate('Extra Discount')}}:</dt>
                             <dd class="col-6">
                                 - {{ \App\CentralLogics\Helpers::set_symbol($order['extra_discount']) }}</dd>
@@ -193,7 +242,7 @@
                             </dd>
 
                             <dt class="col-6" style="font-size: 20px">{{translate('Total:')}}</dt>
-                            <dd class="col-6" style="font-size: 20px">{{ \App\CentralLogics\Helpers::set_symbol($sub_total+$del_c+$total_tax+$add_ons_cost-$order['coupon_discount_amount']-$order['extra_discount']) }}</dd>
+                            <dd class="col-6" style="font-size: 20px">{{ \App\CentralLogics\Helpers::set_symbol($sub_total+$del_c+$total_tax+$add_ons_cost+$exta_items_cost-$order['coupon_discount_amount']-$order['extra_discount']) }}</dd>
                         </dl>
                     </div>
                 </div>

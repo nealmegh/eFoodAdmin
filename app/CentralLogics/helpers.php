@@ -12,6 +12,7 @@ use App\Model\Product;
 use App\Model\Review;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -21,6 +22,7 @@ class Helpers
     {
         $err_keeper = [];
         foreach ($validator->errors()->getMessages() as $index => $error) {
+            Log::info(['code' => $index, 'message' => $error[0]]);
             array_push($err_keeper, ['code' => $index, 'message' => $error[0]]);
         }
         return $err_keeper;
@@ -65,8 +67,13 @@ class Helpers
             foreach ($data as $item) {
 
                 $variations = [];
+                $structure = [];
+                $sides = [];
+                $drinks = [];
+
                 $item['category_ids'] = json_decode($item['category_ids']);
                 $item['attributes'] = json_decode($item['attributes']);
+                $item['meal_price'] = json_decode($item['meal_price']);
                 $item['choice_options'] = json_decode($item['choice_options']);
                 $item['add_ons'] = AddOn::whereIn('id', json_decode($item['add_ons']))->get();
                 foreach (json_decode($item['variations'], true) as $var) {
@@ -76,7 +83,36 @@ class Helpers
                     ]);
                 }
                 $item['variations'] = $variations;
+                // Added by Sopam
+                foreach ((array) json_decode($item['sides'], true) as $var) {
+                    array_push($sides, [
+                        'Name' => $var['Name'],
+                        'Price' => (double)$var['Price']
+                    ]);
+                }
+                $item['sides'] = empty($sides) ? null:$sides;
 
+
+                foreach ((array) json_decode($item['drinks'], true) as $var) {
+                    array_push($drinks, [
+                        'Name' => $var['Name'],
+                        'Price' => (double)$var['Price']
+                    ]);
+                }
+                $item['drinks'] = empty($drinks) ? null:$drinks;
+
+                foreach ((array) json_decode(($item['structure']), true) as $var) {
+                    array_push($structure, [
+                        'item' => $var['item'],
+                        'item_Price' => (double)$var['item_Price'],
+                        'item_defAmount' => (int)$var['item_defAmount'],
+                        'item_maxAmount' => (int)$var['item_maxAmount'],
+                        'item_freeAmount' => (int)$var['item_freeAmount'],
+                    ]);
+                }
+                $item['structure'] = empty($structure) ? null:$structure;
+                Log::info($item);
+                // Added by Sopam End
                 if (count($item['translations'])) {
                     foreach ($item['translations'] as $translation) {
                         if ($translation->key == 'name') {

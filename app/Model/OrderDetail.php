@@ -13,6 +13,10 @@ class OrderDetail extends Model
         'discount_on_product' => 'float',
         'quantity' => 'integer',
         'tax_amount' => 'float',
+        // 'is_meal' => 'integer',
+        // 'drinks' => 'json',
+        // 'sides' => 'json',
+        // 'items' => 'json',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
