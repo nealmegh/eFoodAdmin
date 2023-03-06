@@ -53,23 +53,23 @@ class ProductController extends Controller
         ]);
     }
 
-    public function add_items(Request $request)
-    {
-        $items_arr = json_decode(urldecode(html_entity_decode($request->getContent())), true);
+    // public function add_items(Request $request)
+    // {
+    //     $items_arr = json_decode(urldecode(html_entity_decode($request->getContent())), true);
 
-        return response()->json([
-            'view' => view('admin-views.product.partials._items-tables', compact('items_arr'))->render(),
-        ]);
-    }
+    //     return response()->json([
+    //         'view' => view('admin-views.product.partials._items-tables', compact('items_arr'))->render(),
+    //     ]);
+    // }
 
-    public function add_sides_or_drinks(Request $request)
-    {
-        $arr = json_decode(urldecode(html_entity_decode($request->getContent())), true);
+    // public function add_sides_or_drinks(Request $request)
+    // {
+    //     $arr = json_decode(urldecode(html_entity_decode($request->getContent())), true);
 
-        return response()->json([
-            'view' => view('admin-views.product.partials._side_or_drink-table', compact('arr'))->render(),
-        ]);
-    }
+    //     return response()->json([
+    //         'view' => view('admin-views.product.partials._side_or_drink-table', compact('arr'))->render(),
+    //     ]);
+    // }
 
     public function get_categories(Request $request)
     {
@@ -242,6 +242,7 @@ class ProductController extends Controller
                 $item = [];
                 $item['type'] = $str;
                 $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
+                $item['var_meal_price'] = $request->has($request['meal_price_' . str_replace('.', '_', $str)]) ? abs($request['meal_price_' . str_replace('.', '_', $str)]):null;
                 array_push($variations, $item);
             }
         }
@@ -263,13 +264,14 @@ class ProductController extends Controller
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->add_ons = $request->has('addon_ids') ? json_encode($request->addon_ids) : json_encode([]);
         $product->status = $request->status == 'on' ? 1 : 0;
-        //Added by Sopan
+        //Added by Me Sopan
         $product->structure = $request->has('structure') ? $request->structure:null;
         $product->meal_price  = $request->has('meal_price') ? $request->meal_price:null;
         $product->sides  = $request->has('sides') ? $request->sides:null;
         $product->drinks  = $request->has('drinks') ? $request->drinks:null;
+        $product->dips  = $request->has('dips') ? $request->dips:null;
         $product->item_ttl_free = $request->has('item_ttl_free') ? $request->item_ttl_free:0;
-        //Added by Sopan end
+        //Added by Me Sopan end
 
         $product->save();
 
@@ -408,6 +410,7 @@ class ProductController extends Controller
                 $item = [];
                 $item['type'] = $str;
                 $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
+                
                 array_push($variations, $item);
             }
         }

@@ -1,5 +1,5 @@
 @if(count($combinations[0]) > 0)
-    <table class="table table-bordered">
+    <table class="table table-bordered" id="variant-table">
         <thead>
         <tr>
             <td class="text-center">
@@ -9,6 +9,7 @@
                 <label for="" class="control-label">{{translate('Variant Price')}}</label>
             </td>
         </tr>
+        
         </thead>
         <tbody>
 
@@ -32,6 +33,10 @@
                     <td>
                         <input type="number" name="price_{{ $str }}" value="{{ $price }}" min="0" step="0.01"
                                class="form-control" required>
+                    </td>
+                    <td style="display:none" class="variant_meal_price">
+                        <input type="number" name="meal_price_{{ $str }}" min="0" step="0.01"
+                            class="form-control" required>
                     </td>
                 </tr>
             @endif

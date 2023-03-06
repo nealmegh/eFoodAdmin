@@ -2262,4 +2262,7 @@
   'Free' => 'Free',
   'Items : ' => 'Items : ',
   'Extra Items Cost:' => 'Extra Items Cost:',
+  'Dip Name' => 'Dip Name',
+  'Dips' => 'Dips',
+  'Variant Meal Price' => 'Variant Meal Price',
 );

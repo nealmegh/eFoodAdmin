@@ -190,6 +190,8 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                {{-- Price Info --}}
                                 <div class="col-12">
                                     <div class="card h-100">
                                         <div class="card-header">
@@ -259,6 +261,7 @@
                                 </div>
                             </div>
                         </div>
+                                
                         <div class="col-lg-6">
                             <div class="row g-2">
                                 <div class="col-12">
@@ -312,42 +315,157 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <div class="card h-100">
-                                        <div class="card-header">
-                                            <h4 class="mb-0 d-flex gap-2 align-items-center">
-                                                <i class="tio-puzzle"></i>
-                                                {{ translate('Addons_&_Attributes') }}
-                                            </h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="form-group">
-                                                <label class="input-label">{{ translate('Select_Addons') }}</label>
-                                                <select name="addon_ids[]" class="form-control" id="choose_addons"
-                                                    multiple="multiple">
-                                                    @foreach (\App\Model\AddOn::orderBy('name')->get() as $addon)
-                                                        <option value="{{ $addon['id'] }}">{{ $addon['name'] }}</option>
-                                                    @endforeach
-                                                </select>
+
+                                    {{-- Added by Me  Meal--}}
+                                    <div class="col-12">
+                                        <div class="card h-100">
+                                            <div class="card-header">
+                                                <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                    <i class="tio-puzzle"></i>
+                                                    {{ translate('Meal Deal') }}
+                                                </h4>
                                             </div>
-                                            <div class="form-group">
-                                                <label class="input-label">{{ translate('Select_Attributes') }}<span
-                                                        class="input-label-secondary"></span></label>
-                                                <select name="attribute_id[]" id="choice_attributes" class="form-control"
-                                                    multiple="multiple">
-                                                    @foreach (\App\Model\Attribute::orderBy('name')->get() as $attribute)
-                                                        <option value="{{ $attribute['id'] }}">{{ $attribute['name'] }}
-                                                        </option>
-                                                    @endforeach
+                                            <div class="card-body">
+                                                <label class="input-label" for="has_meal_deal">
+                                                    Has Meal Deal?
+                                                </label>
+                                                <select name="has_meal_deal" class="form-control" id="has_meal_deal">
+                                                    <option value="1">Yes</option>
+                                                    <option value="0" selected>No</option>
                                                 </select>
+                                                <div id="meal_deal" style="display:none">
+                                                    <div class="form-group col-sm-5 mt-4">
+                                                        <label id="meal_price_label" class="input-label"
+                                                            for="meal_priceitem_input">{{ translate('Meal Deal Price') }}</label>
+                                                        <input id="meal_price_input" type="number" min="0" step="any" name="meal_price"
+                                                            class="form-control"
+                                                            placeholder="{{ translate('Enter Price') }}">
+                                                    </div>
+                                                    <section class="sides">
+                                                        <div class="card-header">
+                                                            <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                                {{ translate('Sides') }}
+                                                            </h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-5">
+                                                                    <label id="side_label" class="input-label"
+                                                                        for="side_input">{{ translate('Side') }}</label>
+                                                                    <input id="side_input" type="text" name="side" class="side-form-control form-control"
+                                                                        placeholder="{{ translate('Side Name') }}">
+                                                                </div>
+                                                                <div class="form-group col-sm-5">
+                                                                    <label id="side_Price_label" class="side_Price-label"
+                                                                        for="side_Price_input">{{ translate('Price') }}</label>
+                                                                    <input id="side_Price_input" type="number" min="0" step="any" name="side_Price"
+                                                                        class="side-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                                </div>
+                                                            </div>
+                                                            <button data-side id="add_side_btn" type="button"
+                                                                class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                        </div>
+                                                        <div class="side_list" id="side_list"></div>
+                                                    </section>
+                                                    <section class="drinks">
+                                                        <div class="card-header">
+                                                            <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                                {{ translate('Drinks') }}
+                                                            </h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-5">
+                                                                    <label id="drink_label" class="input-label"
+                                                                        for="drink_input">{{ translate('Drink') }}</label>
+                                                                    <input id="drink_input" type="text" name="drink" class="drink-form-control form-control"
+                                                                        placeholder="{{ translate('Drink Name') }}">
+                                                                </div>
+                                                                <div class="form-group col-sm-5">
+                                                                    <label id="drink_Price_label" class="drink_Price-label"
+                                                                        for="drink_Price_input">{{ translate('Price') }}</label>
+                                                                    <input id="drink_Price_input" type="number" min="0" step="any" name="drink_Price"
+                                                                        class="drink-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                                </div>
+                                                            </div>
+                                                            <button data-drink id="add_drink_btn" type="button"
+                                                                class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                        </div>
+                                                        <div class="drink_list" id="drink_list"></div>
+
+                                                    </section>
+
+                                                    <section class="dips">
+                                                        <div class="card-header">
+                                                            <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                                {{ translate('Dips') }}
+                                                            </h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-5">
+                                                                    <label id="dip_label" class="input-label"
+                                                                        for="dip_input">{{ translate('Dips') }}</label>
+                                                                    <input id="dip_input" type="text" name="dip" class="dip-form-control form-control"
+                                                                        placeholder="{{ translate('Dip Name') }}">
+                                                                </div>
+                                                                <div class="form-group col-sm-5">
+                                                                    <label id="dip_Price_label" class="dip_Price-label"
+                                                                        for="dip_Price_input">{{ translate('Price') }}</label>
+                                                                    <input id="dip_Price_input" type="number" min="0" step="any" name="dip_Price"
+                                                                        class="dip-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                                </div>
+                                                            </div>
+                                                            <button data-dip id="add_dip_btn" type="button"
+                                                                class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                        </div>
+                                                        <div class="dip_list" id="dip_list"></div>
+                                                    </section>
+
+                                                </div>
                                             </div>
+
                                         </div>
                                     </div>
+
+                                
+                            </div>
+                        </div>
+                    </div>
+                    {{-- Addons and Attributes --}}
+                    <div class="col-12">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                    <i class="tio-puzzle"></i>
+                                    {{ translate('Addons_&_Attributes') }}
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="input-label">{{ translate('Select_Addons') }}</label>
+                                    <select name="addon_ids[]" class="form-control" id="choose_addons"
+                                        multiple="multiple">
+                                        @foreach (\App\Model\AddOn::orderBy('name')->get() as $addon)
+                                            <option value="{{ $addon['id'] }}">{{ $addon['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label">{{ translate('Select_Attributes') }}<span
+                                            class="input-label-secondary"></span></label>
+                                    <select name="attribute_id[]" id="choice_attributes" class="form-control"
+                                        multiple="multiple">
+                                        @foreach (\App\Model\Attribute::orderBy('name')->get() as $attribute)
+                                            <option value="{{ $attribute['id'] }}">{{ $attribute['name'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
                     </div>
-
+                    
                     <div class="mt-4" id="from_part_2">
                         <div class="card card-body">
                             <div class="row g-2">
@@ -420,92 +538,121 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h4 class="mb-0 d-flex gap-2 align-items-center">
-                                    <i class="tio-puzzle"></i>
-                                    {{ translate('Meal Deal') }}
-                                </h4>
-                            </div>
-                            <div class="card-body">
-                                <label class="input-label" for="has_meal_deal">
-                                    Has Meal Deal?
-                                </label>
-                                <select name="has_meal_deal" class="form-control" id="has_meal_deal">
-                                    <option value="1">Yes</option>
-                                    <option value="0" selected>No</option>
-                                </select>
-                                <div id="meal_deal" style="display:none">
-                                    <div class="form-group col-sm-5 mt-4">
-                                        <label id="meal_price_label" class="input-label"
-                                            for="meal_priceitem_input">{{ translate('Meal Deal Price') }}</label>
-                                        <input id="meal_price_input" type="number" min="0" step="any" name="meal_price"
-                                            class="form-control"
-                                            placeholder="{{ translate('Enter Price') }}">
+                    
+
+
+
+                {{-- Added by Me --}}
+                                {{-- <div class="col-12">
+                                    <div class="card h-100">
+                                        <div class="card-header">
+                                            <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                <i class="tio-puzzle"></i>
+                                                {{ translate('Meal Deal') }}
+                                            </h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <label class="input-label" for="has_meal_deal">
+                                                Has Meal Deal?
+                                            </label>
+                                            <select name="has_meal_deal" class="form-control" id="has_meal_deal">
+                                                <option value="1">Yes</option>
+                                                <option value="0" selected>No</option>
+                                            </select>
+                                            <div id="meal_deal" style="display:none">
+                                                <div class="form-group col-sm-5 mt-4">
+                                                    <label id="meal_price_label" class="input-label"
+                                                        for="meal_priceitem_input">{{ translate('Meal Deal Price') }}</label>
+                                                    <input id="meal_price_input" type="number" min="0" step="any" name="meal_price"
+                                                        class="form-control"
+                                                        placeholder="{{ translate('Enter Price') }}">
+                                                </div>
+                                                <section class="sides">
+                                                    <div class="card-header">
+                                                        <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                            {{ translate('Sides') }}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="side_label" class="input-label"
+                                                                    for="side_input">{{ translate('Side') }}</label>
+                                                                <input id="side_input" type="text" name="side" class="side-form-control form-control"
+                                                                    placeholder="{{ translate('Side Name') }}">
+                                                            </div>
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="side_Price_label" class="side_Price-label"
+                                                                    for="side_Price_input">{{ translate('Price') }}</label>
+                                                                <input id="side_Price_input" type="number" min="0" step="any" name="side_Price"
+                                                                    class="side-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                            </div>
+                                                        </div>
+                                                        <button data-side id="add_side_btn" type="button"
+                                                            class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                    </div>
+                                                    <div class="side_list" id="side_list"></div>
+                                                </section>
+                                                <section class="drinks">
+                                                    <div class="card-header">
+                                                        <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                            {{ translate('Drinks') }}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="drink_label" class="input-label"
+                                                                    for="drink_input">{{ translate('Drink') }}</label>
+                                                                <input id="drink_input" type="text" name="drink" class="drink-form-control form-control"
+                                                                    placeholder="{{ translate('Drink Name') }}">
+                                                            </div>
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="drink_Price_label" class="drink_Price-label"
+                                                                    for="drink_Price_input">{{ translate('Price') }}</label>
+                                                                <input id="drink_Price_input" type="number" min="0" step="any" name="drink_Price"
+                                                                    class="drink-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                            </div>
+                                                        </div>
+                                                        <button data-drink id="add_drink_btn" type="button"
+                                                            class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                    </div>
+                                                    <div class="drink_list" id="drink_list"></div>
+
+                                                </section>
+
+                                                <section class="dips">
+                                                    <div class="card-header">
+                                                        <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                            {{ translate('Dips') }}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="dip_label" class="input-label"
+                                                                    for="dip_input">{{ translate('Dips') }}</label>
+                                                                <input id="dip_input" type="text" name="dip" class="dip-form-control form-control"
+                                                                    placeholder="{{ translate('Dip Name') }}">
+                                                            </div>
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="dip_Price_label" class="dip_Price-label"
+                                                                    for="dip_Price_input">{{ translate('Price') }}</label>
+                                                                <input id="dip_Price_input" type="number" min="0" step="any" name="dip_Price"
+                                                                    class="dip-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                            </div>
+                                                        </div>
+                                                        <button data-dip id="add_dip_btn" type="button"
+                                                            class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                    </div>
+                                                    <div class="dip_list" id="dip_list"></div>
+                                                </section>
+
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    <section class="sides">
-                                        <div class="card-header">
-                                            <h4 class="mb-0 d-flex gap-2 align-items-center">
-                                                {{ translate('Sides') }}
-                                            </h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="form-group col-sm-5">
-                                                    <label id="side_label" class="input-label"
-                                                        for="side_input">{{ translate('Side') }}</label>
-                                                    <input id="side_input" type="text" name="side" class="side-form-control form-control"
-                                                        placeholder="{{ translate('Side Name') }}">
-                                                </div>
-                                                <div class="form-group col-sm-5">
-                                                    <label id="side_Price_label" class="side_Price-label"
-                                                        for="side_Price_input">{{ translate('Price') }}</label>
-                                                    <input id="side_Price_input" type="number" min="0" step="any" name="side_Price"
-                                                        class="side-form-control form-control" placeholder="{{ translate('Price') }}">
-                                                </div>
-                                            </div>
-                                            <button data-side id="add_side_btn" type="button"
-                                                class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
-                                        </div>
-                                        <div class="side_list" id="side_list"></div>
-                                    </section>
-                                    <section class="drinks">
-                                        <div class="card-header">
-                                            <h4 class="mb-0 d-flex gap-2 align-items-center">
-                                                {{ translate('Drinks') }}
-                                            </h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="form-group col-sm-5">
-                                                    <label id="drink_label" class="input-label"
-                                                        for="drink_input">{{ translate('Drink') }}</label>
-                                                    <input id="drink_input" type="text" name="drink" class="drink-form-control form-control"
-                                                        placeholder="{{ translate('Drink Name') }}">
-                                                </div>
-                                                <div class="form-group col-sm-5">
-                                                    <label id="drink_Price_label" class="drink_Price-label"
-                                                        for="drink_Price_input">{{ translate('Price') }}</label>
-                                                    <input id="drink_Price_input" type="number" min="0" step="any" name="drink_Price"
-                                                        class="drink-form-control form-control" placeholder="{{ translate('Price') }}">
-                                                </div>
-                                            </div>
-                                            <button data-drink id="add_drink_btn" type="button"
-                                                class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
-                                        </div>
-                                        <div class="drink_list" id="drink_list"></div>
-
-                                    </section>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-
-
-
+                                </div> --}}
 
 
                     <div class="d-flex justify-content-end gap-3 mt-4">
@@ -579,7 +726,7 @@
     </script>
 
     <script>
-        // added by Sopan
+        // Added by Me (Sopan)
         $("#add_item_btn").on('click', function() {
             let idata = $(".item-form-control").serializeArray();
             let itm = new Object();
@@ -625,7 +772,7 @@
                 itmarr.push(itm);
                 sessionStorage.setItem('itm_list', JSON.stringify(itmarr));
             }
-            $.ajaxSetup({
+            /*$.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
@@ -639,7 +786,50 @@
                 success: function(data) {
                     $('#item_list').html(data.view);
                 }
-            });
+            });*/
+            let temp=`<table id="itm_table" class="table table-bordered">
+            <thead>
+            <tr>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Item')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Default Amount')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Price')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Free Upto')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Max Amount')}}</label>
+                </td>
+            </tr>
+            </thead>
+             <tbody>
+             </tbody>
+        </table>`
+            $('#item_list').html(temp);
+            itmarr.forEach((item)=>{
+                /*let trtemp=`
+                <tr>
+                    <td>${item["item"]}</td>
+                    <td>${item["item_defAmount"]}</td>
+                    <td>${item["item_Price"]}</td>
+                    <td>${item["item_freeAmount"]}</td>
+                    <td>${item["item_maxAmount"]}</td>
+                </tr>
+                `*/
+                let tditem = $("<td></td>").text(item["item"]);
+                let tditem_defAmount = $("<td></td>").text(item["item_defAmount"]);
+                let tditmprice = $("<td></td>").text(item["item_Price"]);
+                let tditem_freeAmount = $("<td></td>").text(item["item_freeAmount"]);
+                let tditem_maxAmount = $("<td></td>").text(item["item_maxAmount"]);
+                
+                let tr=$("<tr></tr>").append(tditem,tditem_defAmount,tditmprice,tditem_freeAmount,tditem_maxAmount);
+                $("#itm_table tbody").append(tr);
+            })
             console.log(itmarr);
 
         });
@@ -647,17 +837,31 @@
         $("#has_meal_deal").on("change",function (el){
             if(el.target.value * 1 == 1){
                 $("#meal_deal").show();
+                let variantheader = 
+                `<td class="text-center" id="variantheader">
+                    <label for="" class="control-label">{{translate('Variant Meal Price')}}</label>
+                </td>`;
+                $("#variant-table thead tr").append(variantheader);
+                $(".variant_meal_price").show();
             }else{
                 $("#meal_deal").hide();
+                $("#variantheader").remove();
+                $(".variant_meal_price").hide();
             };
         });
 
         $(".add_meal_type_btn").on('click', function(el) {
-            let is_side = false
+            let is_side = false;
+            let type = "";
             if(el.target.hasAttribute("data-side")){
                 is_side = true;
+                type = "side";
+            }else if(el.target.hasAttribute("data-dip")){
+                type = "dip";
+            }else{
+                type = "drink";
             }
-            let sdata = $(`.${is_side ? "side":"drink"}-form-control`).serializeArray();
+            let sdata = $(`.${type}-form-control`).serializeArray();
             let sde = new Object();
 
             if($("#has_meal_deal")[0].value * 1 != 1){
@@ -679,15 +883,15 @@
             sde["Price"] = sdata[1].value; 
 
             let sidearr = new Array();
-            if (sessionStorage.getItem(`${is_side ? "side":"drink"}_list`) == null) {
+            if (sessionStorage.getItem(`${type}_list`) == null) {
                 sidearr.push(sde);
-                sessionStorage.setItem(`${is_side ? "side":"drink"}_list`, JSON.stringify(sidearr))
+                sessionStorage.setItem(`${type}_list`, JSON.stringify(sidearr))
             } else {
-                sidearr = JSON.parse(sessionStorage.getItem(`${is_side ? "side":"drink"}_list`));
+                sidearr = JSON.parse(sessionStorage.getItem(`${type}_list`));
 
                 for (let i = 0; i < sidearr.length; i++) {
                     if (sidearr[i].Name == sde.Name) {
-                        toastr.error(`${is_side ? "Side":"Drink"} Already Exists`, {
+                        toastr.error(`${type} Already Exists`, {
                             CloseButton: true,
                             ProgressBar: true
                         });
@@ -695,9 +899,9 @@
                     }
                 }
                 sidearr.push(sde);
-                sessionStorage.setItem(`${is_side ? "side":"drink"}_list`, JSON.stringify(sidearr));
+                sessionStorage.setItem(`${type}_list`, JSON.stringify(sidearr));
             }
-            $.ajaxSetup({
+            /*$.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
@@ -709,9 +913,39 @@
                 data: JSON.stringify(sidearr),
                 processData: false,
                 success: function(data) {
-                    $(`#${is_side ? "side":"drink"}_list`).html(data.view);
+                    $(`#${type}_list`).html(data.view);
                 }
-            });
+            });*/
+            let temp = `
+            <table id="${type}_table" class="table table-bordered">
+                <thead>
+                <tr>
+                    <td class="text-center">
+                        <label for="" class="control-label">{{translate('Name')}}</label>
+                    </td>
+                    <td class="text-center">
+                        <label for="" class="control-label">{{translate('Price')}}</label>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+             </table>   
+            `
+
+            $(`#${type}_list`).html(temp);
+            sidearr.forEach((el)=>{
+                /*let trtemp=`
+                <tr>
+                    <td>${el["Name"]}</td>
+                    <td>${el["Price"]}</td>
+                </tr>
+                `*/
+                let tdn = $("<td></td>").text(el["Name"]);
+                let tdp = $("<td></td>").text(el["Price"]);
+                let tr=$("<tr></tr>").append(tdn,tdp);
+                $(`#${type}_table tbody`).append(tr);
+            })
             console.log(sidearr);
 
         });
@@ -734,6 +968,7 @@
             if(formData.get("has_meal_deal")*1 == 1){
                 if(sessionStorage.getItem('side_list')) formData.append("sides", sessionStorage.getItem('side_list'));
                 if(sessionStorage.getItem('drink_list')) formData.append("drinks", sessionStorage.getItem('drink_list'));
+                if(sessionStorage.getItem('dip_list')) formData.append("dips", sessionStorage.getItem('dip_list'));
             }else{
                 formData.delete("has_meal_deal");
             };
@@ -807,15 +1042,16 @@
         $('#choice_attributes').on('change', function() {
             $('#customer_choice_options').html(null);
             $.each($("#choice_attributes option:selected"), function() {
+                console.log($(this).text());
                 add_more_customer_choice_option($(this).val(), $(this).text());
             });
         });
 
         function add_more_customer_choice_option(i, name) {
-            let n = name.split(' ').join('');
+            // let n = name.split(' ').join('');
             $('#customer_choice_options').append(
                 '<div class="row"><div class="col-md-3"><input type="hidden" name="choice_no[]" value="' + i +
-                '"><input type="text" class="form-control" name="choice[]" value="' + n +
+                '"><input type="text" class="form-control" name="choice[]" value="' + name +
                 '" placeholder="Choice Title" readonly></div><div class="col-lg-9"><input type="text" class="form-control" name="choice_options_' +
                 i +
                 '[]" placeholder="Enter choice values" data-role="tagsinput" onchange="combination_update()"></div></div>'
@@ -824,6 +1060,7 @@
         }
 
         function combination_update() {
+            
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -840,6 +1077,15 @@
                         $('#quantity').hide();
                     } else {
                         $('#quantity').show();
+                    }
+                    //Added by Me(Sopan)
+                    if($("#has_meal_deal")[0].value * 1 == 1){
+                        let variantheader = 
+                        `<td class="text-center">
+                            <label for="" class="control-label">{{translate('Variant Meal Price')}}</label>
+                        </td>`;
+                        $("#variant-table thead tr").append(variantheader);
+                        $(".variant_meal_price").show();
                     }
                 }
             });
