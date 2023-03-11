@@ -184,8 +184,8 @@
                             @php($total_dis_on_pro=0)
                             @php($add_ons_cost=0)
                             {{-- Added by Me --}}
-                            @php($exta_items_cost=0)
-                            
+                            @php($extra_items_cost=0)
+                            @php($total_meal_items_cost=0)
                             @foreach($order->details as $detail)
                                 @php($product_details = json_decode($detail['product_details'], true))
                                 @php($structure = json_decode($product_details["structure"],true))
@@ -193,8 +193,14 @@
                                 @php($add_on_qtys=json_decode($detail['add_on_qtys'],true))
                                 @php($items=json_decode($detail['items'],true))
                                 @php($exta_items_quantity=0)
+                                @php($is_meal = json_decode($detail['is_meal'],true))
+                                @php($sides = json_decode($detail['sides'],true))
+                                @php($drinks = json_decode($detail['drinks'],true))
+                                @php($dips = json_decode($detail['dips'],true))
+
                                 @php($items_price=0)
-                                @php($total_free = $product_details["item_ttl_free"]);
+                                @php($meal_items_price=0)
+                                @php($total_free = $product_details["item_ttl_free"])
 
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
@@ -216,22 +222,77 @@
                                                             <span>
                                                             <u><strong>{{translate('variation')}}</strong></u>
                                                             @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
+                                                                @if ($key1 == "var_meal_price")
+                                                                    @continue
+                                                                @endif
                                                                 <div class="font-size-sm text-body">
                                                                 @if(isset($variation_det[0]['type']))
-                                                                        <span class="text-dark text-capitalize">{{$key1}} :  </span>
+                                                                    <span class="text-dark text-capitalize">{{$key1}} :  </span>
                                                                     <span class="text-dark">{{ $key1 == 'price' ?  Helpers::set_symbol($variation) : $variation }}</span>
                                                                 @elseif(isset($variation_det[0]['price']))
                                                                     <span class="text-dark text-capitalize">{{$key1}} :  </span>
                                                                     <span class="text-dark">{{ $key1 == 'price' ?  Helpers::set_symbol($variation) : $variation }}</span>
                                                                 @endif
-                                                            </div>
+                                                                </div>
                                                             @endforeach
+                                                                @if ($is_meal == 1)
+                                                                    <u><strong>Meal Deal</strong></u>
+                                                                    @if(isset($sides))
+                                                                        @php($meal_items_price += $sides['Price'])
+                                                                        <div class="font-size-sm text-body">
+                                                                        <span class="text-dark text-capitalize">Side: </span>
+                                                                        <span class="text-dark">{{$sides['Name']}}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @if(isset($drinks))
+                                                                        @php($meal_items_price += $drinks['Price'])
+                                                                        <div class="font-size-sm text-body">
+                                                                        <span class="text-dark text-capitalize">Drink: </span>
+                                                                        <span class="text-dark">{{$drinks['Name']}}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @if(isset($dips))
+                                                                        @php($meal_items_price += $dips['Price'])
+                                                                        <div class="font-size-sm text-body">
+                                                                        <span class="text-dark text-capitalize">Dip: </span>
+                                                                        <span class="text-dark">{{$dips['Name']}}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @php($total_meal_items_cost += ($meal_items_price- $detail['discount_on_product']) * $detail['quantity'])
+                                                                @endif
                                                             </span>
                                                         @endif
                                                     @else
-                                                        <div class="font-size-sm text-body">
-                                                            <span class="text-dark">{{translate('price')}}  : {{\App\CentralLogics\Helpers::set_symbol($detail['price'])}}</span>
-                                                        </div>
+                                                        <span>
+                                                            <div class="font-size-sm text-body">
+                                                                <span class="text-dark">{{translate('price')}}  : {{\App\CentralLogics\Helpers::set_symbol($detail['price'])}}</span>
+                                                            </div>
+                                                            @if ($is_meal == 1)
+                                                                <u><strong>Meal Deal</strong></u>
+                                                                @if(isset($sides))
+                                                                    @php($meal_items_price += $sides['Price'])
+                                                                    <div class="font-size-sm text-body">
+                                                                    <span class="text-dark text-capitalize">Side: </span>
+                                                                    <span class="text-dark">{{$sides['Name']}}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @if(isset($drinks))
+                                                                    @php($meal_items_price += $drinks['Price'])
+                                                                    <div class="font-size-sm text-body">
+                                                                    <span class="text-dark text-capitalize">Drink: </span>
+                                                                    <span class="text-dark">{{$drinks['Name']}}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @if(isset($dips))
+                                                                    @php($meal_items_price += $dips['Price'])
+                                                                    <div class="font-size-sm text-body">
+                                                                    <span class="text-dark text-capitalize">Dip: </span>
+                                                                    <span class="text-dark">{{$dips['Name']}}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @php($total_meal_items_cost += $meal_items_price)
+                                                            @endif
+                                                        </span>
 
                                                     @endif
                                                     <br>
@@ -279,7 +340,8 @@
                                 <tr>
                                 {{-- Added by Me --}}
                                     <td colspan="6">
-                                        @if(count($items) > 0)
+                                        @if(count(is_countable($items)?$items:[]) > 0)
+                                            {{-- @php(Illuminate\Support\Facades\Log::info($items)) --}}
                                             <table class="table table-bordered">
                                                 <thead>
                                                 <tr>
@@ -293,7 +355,7 @@
                                                         <label for="" class="control-label">{{translate('Free')}}</label>
                                                     </td>
                                                     <td class="text-center">
-                                                        <label for="" class="control-label">{{translate('Price')}}</label>
+                                                        <label for="" class="control-label">{{translate('To Pay')}}</label>
                                                     </td>
                                                 </tr>
                                                 </thead>
@@ -317,7 +379,7 @@
                                                             @php($items_price += $amount_to_pay)
                                                         </tr>
                                                 @endforeach
-                                                @php($exta_items_cost+=$items_price)
+                                                @php($extra_items_cost+=($items_price- $detail['discount_on_product']) * $detail['quantity'])
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
@@ -329,6 +391,7 @@
                                         @endif
                                     </td>
                                 </tr>
+                            
                                 @php($total_dis_on_pro += $tot_discount)
                                 @php($sub_total += $amount)
                                 @php($total_tax += $product_tax)
@@ -378,7 +441,18 @@
                                         </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">
-                                        {{ \App\CentralLogics\Helpers::set_symbol($exta_items_cost) }}
+                                        {{ \App\CentralLogics\Helpers::set_symbol($extra_items_cost) }}
+                                    </dd>
+
+                                    <dt class="col-6">
+
+                                        <div class="d-flex max-w220 ml-auto">
+                                            <span>Meal Items Cost</span>
+                                            <span>:</span>
+                                        </div>
+                                    </dt>
+                                    <dd class="col-6 text-dark text-right">
+                                        {{ \App\CentralLogics\Helpers::set_symbol($total_meal_items_cost) }}
                                     </dd>
 
                                     <dt class="col-6">
@@ -397,7 +471,7 @@
                                         </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">
-                                        {{ \App\CentralLogics\Helpers::set_symbol($sub_total =$sub_total+$total_tax+$add_ons_cost+$exta_items_cost-$total_dis_on_pro) }}</dd>
+                                        {{ \App\CentralLogics\Helpers::set_symbol($sub_total =$sub_total+$total_tax+$add_ons_cost+$extra_items_cost+$total_meal_items_cost-$total_dis_on_pro) }}</dd>
 
                                     <dt class="col-6">
 

@@ -2265,4 +2265,7 @@
   'Dip Name' => 'Dip Name',
   'Dips' => 'Dips',
   'Variant Meal Price' => 'Variant Meal Price',
+  'Dip' => 'Dip',
+  'To Pay' => 'To Pay',
+  'Action' => 'Action',
 );

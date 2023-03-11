@@ -43,7 +43,7 @@ class Helpers
         return $result;
     }
 
-    public static function variation_price($product, $variation)
+    public static function variation_price($product, $variation,$is_meal)
     {
         if (empty(json_decode($variation, true))) {
             $result = $product['price'];
@@ -52,7 +52,11 @@ class Helpers
             $result = 0;
             foreach (json_decode($product['variations'], true) as $property => $value) {
                 if ($value['type'] == $match['type']) {
-                    $result = $value['price'];
+                    if($is_meal == 0){
+                        $result = $value['price'];
+                    }else{
+                        $result = $value['var_meal_price'];
+                    }
                 }
             }
         }
@@ -65,21 +69,24 @@ class Helpers
 
         if ($multi_data == true) {
             foreach ($data as $item) {
-
+                Log::info($item);
                 $variations = [];
                 $structure = [];
                 $sides = [];
                 $drinks = [];
+                $dips = [];
 
                 $item['category_ids'] = json_decode($item['category_ids']);
                 $item['attributes'] = json_decode($item['attributes']);
-                $item['meal_price'] = json_decode($item['meal_price']);
+                // $item['meal_price'] = json_decode($item['meal_price']);
+                $item['meal_price'] = isset($item['meal_price']) ? (double)$item['meal_price']:null;
                 $item['choice_options'] = json_decode($item['choice_options']);
                 $item['add_ons'] = AddOn::whereIn('id', json_decode($item['add_ons']))->get();
                 foreach (json_decode($item['variations'], true) as $var) {
                     array_push($variations, [
                         'type' => $var['type'],
-                        'price' => (double)$var['price']
+                        'price' => (double)$var['price'],
+                        'var_meal_price' => (double)$var['var_meal_price']
                     ]);
                 }
                 $item['variations'] = $variations;
@@ -100,6 +107,14 @@ class Helpers
                     ]);
                 }
                 $item['drinks'] = empty($drinks) ? null:$drinks;
+
+                foreach ((array) json_decode($item['dips'], true) as $var) {
+                    array_push($dips, [
+                        'Name' => $var['Name'],
+                        'Price' => (double)$var['Price']
+                    ]);
+                }
+                $item['dips'] = empty($dips) ? null:$drinks;
 
                 foreach ((array) json_decode(($item['structure']), true) as $var) {
                     array_push($structure, [
@@ -147,6 +162,8 @@ class Helpers
             $data['attributes'] = gettype($data['attributes']) != 'array' ? json_decode($data['attributes']) : $data['attributes'];
             $data['choice_options'] = gettype($data['choice_options']) != 'array' ? json_decode($data['choice_options']) : $data['choice_options'];
             $data['add_ons'] = AddOn::whereIn('id', $addon_ids)->get();
+            
+
             foreach (gettype($data['variations']) != 'array' ? json_decode($data['variations'], true) : $data['variations'] as $var) {
                 array_push($variations, [
                     'type' => $var['type'],
@@ -164,6 +181,52 @@ class Helpers
                     }
                 }
             }
+            
+            // Added by Sopam
+            $structure = [];
+            $sides = [];
+            $drinks = [];
+            $dips = [];
+            $data['meal_price'] = isset($data['meal_price']) ? (double)$data['meal_price']:null;
+            foreach ((array) json_decode($data['sides'], true) as $var) {
+                array_push($sides, [
+                    'Name' => $var['Name'],
+                    'Price' => (double)$var['Price']
+                ]);
+            }
+            $data['sides'] = empty($sides) ? null:$sides;
+
+
+            foreach ((array) json_decode($data['drinks'], true) as $var) {
+                array_push($drinks, [
+                    'Name' => $var['Name'],
+                    'Price' => (double)$var['Price']
+                ]);
+            }
+            $data['drinks'] = empty($drinks) ? null:$drinks;
+
+            foreach ((array) json_decode($data['dips'], true) as $var) {
+                array_push($dips, [
+                    'Name' => $var['Name'],
+                    'Price' => (double)$var['Price']
+                ]);
+            }
+            $data['dips'] = empty($dips) ? null:$drinks;
+
+            foreach ((array) json_decode(($data['structure']), true) as $var) {
+                array_push($structure, [
+                    'item' => $var['item'],
+                    'item_Price' => (double)$var['item_Price'],
+                    'item_defAmount' => (int)$var['item_defAmount'],
+                    'item_maxAmount' => (int)$var['item_maxAmount'],
+                    'item_freeAmount' => (int)$var['item_freeAmount'],
+                ]);
+            }
+            $data['structure'] = empty($structure) ? null:$structure;
+            Log::info($data);
+            // Added by Sopam End
+
+
         }
 
         return $data;

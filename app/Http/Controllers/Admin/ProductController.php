@@ -141,7 +141,7 @@ class ProductController extends Controller
             'category_id' => 'required',
             'image' => 'required',
             'price' => 'required|numeric',
-            'product_type' => 'required|in:veg,non_veg',
+            // 'product_type' => 'required|in:veg,non_veg',
             'meal_price' => Rule::requiredIf($request->has("has_meal_deal")),
         ], [
             'name.required' => translate('Product name is required!'),
@@ -234,15 +234,17 @@ class ProductController extends Controller
                 $str = '';
                 foreach ($combination as $k => $item) {
                     if ($k > 0) {
-                        $str .= '-' . str_replace(' ', '', $item);
+                        $str .= '-' . str_replace('', '', $item);
                     } else {
-                        $str .= str_replace(' ', '', $item);
+                        $str .= str_replace('', '', $item);
                     }
                 }
                 $item = [];
                 $item['type'] = $str;
-                $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
-                $item['var_meal_price'] = $request->has($request['meal_price_' . str_replace('.', '_', $str)]) ? abs($request['meal_price_' . str_replace('.', '_', $str)]):null;
+                Log::info($request);
+                $price = $request['price_' . str_replace(' ', '_', $str)];
+                $item['price'] = abs($price);
+                $item['var_meal_price'] = abs($request['meal_price_' . str_replace(' ', '_', $str)]);
                 array_push($variations, $item);
             }
         }
@@ -250,7 +252,7 @@ class ProductController extends Controller
         $product->variations = json_encode($variations);
         $product->price = $request->price;
         $product->set_menu = $request->item_type;
-        $product->product_type = $request->product_type;
+        $product->product_type = $request->has('product_type') ? $request->product_type:null;
         $product->image = Helpers::upload('product/', 'png', $request->file('image'));
         $product->available_time_starts = $request->available_time_starts;
         $product->available_time_ends = $request->available_time_ends;

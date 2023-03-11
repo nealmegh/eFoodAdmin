@@ -98,13 +98,19 @@ class OrderController extends Controller
             $total_tax_amount = 0 ;
 
             foreach ($request['cart'] as $c) {
+                //Added by Me:Change to match meal deal
                 $product = Product::find($c['product_id']);
+                Log::info($c);
                 if (array_key_exists('variation', $c) && count(json_decode($product['variations'], true)) > 0) {
-                    $price = Helpers::variation_price($product, json_encode($c['variation']));
+                    $price = Helpers::variation_price($product, json_encode($c['variation']),$c['is_meal']);
                 } else {
-                    $price = Helpers::set_price($product['price']);
+                    if($c['is_meal'] == 1){
+                        $price = Helpers::set_price($product['meal_price']);
+                    }else{
+                        $price = Helpers::set_price($product['price']);
+                    }
                 }
-             
+                
                 $or_d = [
                     'order_id' => $order_id,
                     'product_id' => $c['product_id'],
@@ -115,14 +121,17 @@ class OrderController extends Controller
                     'discount_on_product' => Helpers::discount_calculate($product, $price),
                     'discount_type' => 'discount_on_product',
                     'variant' => json_encode($c['variant']),
-                    'variation' => array_key_exists('variation', $c) ? json_encode($c['variation']) : json_encode([]),
+                    // 'variation' => array_key_exists('variation', $c) ? json_encode($c['variation']) : json_encode([]),
+                    'variation' => (array_key_exists('variation', $c) && $c["variation"][0]['price'] != null) ? json_encode($c['variation']) : null,
                     'add_on_ids' => json_encode($c['add_on_ids']),
                     'add_on_qtys' => json_encode($c['add_on_qtys']),
                     //Added by Me
                     'is_meal' => array_key_exists("is_meal",$c) ? $c["is_meal"]:0,
                     'sides' => array_key_exists("sides",$c) ? json_encode($c["sides"]):null,
                     'drinks' => array_key_exists("drinks",$c) ? json_encode($c["drinks"]):null,
-                    'items' => array_key_exists("items",$c) ? json_encode($c["items"]):null,
+                    'dips' => array_key_exists("dips",$c) ? json_encode($c["dips"]):null,
+                    // 'items' => array_key_exists("items",$c) ? json_encode($c["items"]):null,
+                    'items' => (array_key_exists("items",$c) && $c["items"][0]['quantity'] != -1) ? json_encode($c["items"]):null,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];

@@ -8,6 +8,14 @@
 @endpush
 
 @section('content')
+    {{-- Added by Me --}}
+    <script>
+        var global = {};
+        global['has_sides'] =false;
+        global['has_drinks'] =false;
+        global['has_dips'] =false;
+        global['has_items'] =false;
+    </script>
     <div class="content container-fluid">
         <!-- Page Header -->
         <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
@@ -294,41 +302,200 @@
                                         </div>
                                     </div>
                                 </div>
+                                {{-- Added by Me  Meal--}}
                                 <div class="col-12">
                                     <div class="card h-100">
                                         <div class="card-header">
                                             <h4 class="mb-0 d-flex gap-2 align-items-center">
-                                                <i class="tio-user"></i>
-                                                {{translate('Addons_&_Attributes')}}
+                                                <i class="tio-puzzle"></i>
+                                                {{ translate('Meal Deal') }}
                                             </h4>
                                         </div>
                                         <div class="card-body">
-                                            <div class="form-group">
-                                                <label class="input-label">{{translate('Select_Addons')}}</label>
-                                                <select name="addon_ids[]" class="form-control" id="choose_addons" multiple="multiple">
-                                                    @foreach(\App\Model\AddOn::orderBy('name')->get() as $addon)
-                                                        <option
-                                                            value="{{$addon['id']}}" {{in_array($addon->id,json_decode($product['add_ons'],true))?'selected':''}}>{{$addon['name']}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="input-label">{{translate('Select_Attributes')}}</label>
-                                                <select name="attribute_id[]" id="choice_attributes"
+                                            <label class="input-label" for="has_meal_deal">
+                                                Has Meal Deal?
+                                            </label>
+                                            <select name="has_meal_deal" class="form-control" id="has_meal_deal">
+                                                <option value="1" {{ isset($product['meal_price']) ? "selected":"" }}>Yes</option>
+                                                <option value="0" {{ isset($product['meal_price']) ? "":"selected" }}>No</option>
+                                            </select>
+                                            <div id="meal_deal" style={{ isset($product['meal_price']) ? "":"display:none" }}>
+                                                <div class="form-group col-sm-5 mt-4">
+                                                    <label id="meal_price_label" class="input-label"
+                                                        for="meal_priceitem_input">{{ translate('Meal Deal Price') }}</label>
+                                                    <input id="meal_price_input" type="number" min="0" step="any" name="meal_price"
                                                         class="form-control"
-                                                        multiple="multiple">
-                                                    @foreach(\App\Model\Attribute::orderBy('name')->get() as $attribute)
-                                                        <option
-                                                            value="{{$attribute['id']}}" {{in_array($attribute->id,json_decode($product['attributes'],true))?'selected':''}}>{{$attribute['name']}}</option>
-                                                    @endforeach
-                                                </select>
+                                                        value={{ isset($product['meal_price']) ? $product['meal_price']:null }}
+                                                        placeholder="{{ translate('Enter Price') }}">
+                                                </div>
+                                                <section class="sides">
+                                                    <div class="card-header">
+                                                        <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                            {{ translate('Sides') }}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="side_label" class="input-label"
+                                                                    for="side_input">{{ translate('Side') }}</label>
+                                                                <input id="side_input" type="text" name="side" class="side-form-control form-control"
+                                                                    placeholder="{{ translate('Side Name') }}">
+                                                            </div>
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="side_Price_label" class="side_Price-label"
+                                                                    for="side_Price_input">{{ translate('Price') }}</label>
+                                                                <input id="side_Price_input" type="number" min="0" step="any" name="side_Price"
+                                                                    class="side-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                            </div>
+                                                        </div>
+                                                        <button data-side id="add_side_btn" type="button"
+                                                            class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                    </div>
+                                                    <div class="side_list" id="side_list">
+                                                        @if($product['sides'] != null)
+                                                            <table id="sides_table" class="table table-bordered">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Name')}}</label>
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Price')}}</label>
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Action')}}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </thead>
+                                                                 <tbody>
+                                                                    @foreach (json_decode($product['sides'],true) as $key => $side)
+                                                                        <tr>
+                                                                            <td>{{$side['Name']}}</td>
+                                                                            <td>{{$side['Price']}}</td>
+                                                                            <td>
+                                                                                <button type="button" data-side="{{ $key }}" class="btn btn-outline-danger side-delete">
+                                                                                    <i class="tio-delete" data-side="{{ $key }}"  aria-hidden="true"></i>
+                                                                                </button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                            <script>
+                                                                window.onload = (event) => {
+                                                                    let sidearr = new Array();
+                                                                    document.querySelectorAll("#sides_table tbody tr").forEach((el,ind)=>{
+                                                                        let side = {};
+                                                                        side['Name']=el.children[0].innerText;
+                                                                        side['Price']=el.children[1].innerText;
+                                                                        console.log(side);
+                                                                        sidearr.push(side);
+                                                                    })
+                                                                    sessionStorage.setItem('side_list', JSON.stringify(itmarr));
+                                                                };  
+                                                            </script>
+                                                        @endif
+                                                    </div>
+                                                </section>
+                                                <section class="drinks">
+                                                    <div class="card-header">
+                                                        <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                            {{ translate('Drinks') }}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="drink_label" class="input-label"
+                                                                    for="drink_input">{{ translate('Drink') }}</label>
+                                                                <input id="drink_input" type="text" name="drink" class="drink-form-control form-control"
+                                                                    placeholder="{{ translate('Drink Name') }}">
+                                                            </div>
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="drink_Price_label" class="drink_Price-label"
+                                                                    for="drink_Price_input">{{ translate('Price') }}</label>
+                                                                <input id="drink_Price_input" type="number" min="0" step="any" name="drink_Price"
+                                                                    class="drink-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                            </div>
+                                                        </div>
+                                                        <button data-drink id="add_drink_btn" type="button"
+                                                            class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                    </div>
+                                                    <div class="drink_list" id="drink_list"></div>
+
+                                                </section>
+
+                                                <section class="dips">
+                                                    <div class="card-header">
+                                                        <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                                            {{ translate('Dips') }}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="dip_label" class="input-label"
+                                                                    for="dip_input">{{ translate('Dip') }}</label>
+                                                                <input id="dip_input" type="text" name="dip" class="dip-form-control form-control"
+                                                                    placeholder="{{ translate('Dip Name') }}">
+                                                            </div>
+                                                            <div class="form-group col-sm-5">
+                                                                <label id="dip_Price_label" class="dip_Price-label"
+                                                                    for="dip_Price_input">{{ translate('Price') }}</label>
+                                                                <input id="dip_Price_input" type="number" min="0" step="any" name="dip_Price"
+                                                                    class="dip-form-control form-control" placeholder="{{ translate('Price') }}">
+                                                            </div>
+                                                        </div>
+                                                        <button data-dip id="add_dip_btn" type="button"
+                                                            class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
+                                                    </div>
+                                                    <div class="dip_list" id="dip_list"></div>
+                                                </section>
+
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+
+                    <div class="col-12">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                    <i class="tio-user"></i>
+                                    {{translate('Addons_&_Attributes')}}
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="input-label">{{translate('Select_Addons')}}</label>
+                                    <select name="addon_ids[]" class="form-control" id="choose_addons" multiple="multiple">
+                                        @foreach(\App\Model\AddOn::orderBy('name')->get() as $addon)
+                                            <option
+                                                value="{{$addon['id']}}" {{in_array($addon->id,json_decode($product['add_ons'],true))?'selected':''}}>{{$addon['name']}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label">{{translate('Select_Attributes')}}</label>
+                                    <select name="attribute_id[]" id="choice_attributes"
+                                            class="form-control"
+                                            multiple="multiple">
+                                        @foreach(\App\Model\Attribute::orderBy('name')->get() as $attribute)
+                                            <option
+                                                value="{{$attribute['id']}}" {{in_array($attribute->id,json_decode($product['attributes'],true))?'selected':''}}>{{$attribute['name']}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="from_part_2">
                         <div class="card mt-4">
                             <div class="card-body">
@@ -347,6 +514,120 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Added by Me (Sopan) --}}
+                    <div class="col-12">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0 d-flex gap-2 align-items-center">
+                                    <i class="tio-puzzle"></i>
+                                    {{ translate('Product Structure') }}
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="form-group col-sm-5">
+                                        <label id="item_label" class="input-label"
+                                            for="item_input">{{ translate('Item') }}</label>
+                                        <input id="item_input" type="text" name="item"
+                                            class="item-form-control form-control"
+                                            placeholder="{{ translate('Item Name') }}">
+                                    </div>
+                                    <div class="form-group col-sm-5">
+                                        <label id="item_defAmount_label" class="item_defAmount-label"
+                                            for="item_defAmount_input">{{ translate('Default Amount') }}</label>
+                                        <input id="item_defAmount_input" type="number" min="0" step="1" name="item_defAmount"
+                                            class="item-form-control form-control"
+                                            placeholder="{{ translate('Defaut Amount') }}">
+                                    </div>
+                                    <div class="form-group col-sm-5">
+                                        <label id="item_maxAmount_label" class="item_maxAmount-label"
+                                            for="item_maxAmount_input">{{ translate('Max Amount') }}</label>
+                                        <input id="item_maxAmount_input" type="number" min="1" step="1" name="item_maxAmount"
+                                            class="item-form-control form-control"
+                                            placeholder="{{ translate('Max Amount') }}">
+                                    </div>
+                                    <div class="form-group col-sm-5">
+                                        <label id="item_Price_label" class="item_Price-label"
+                                            for="item_Price_input">{{ translate('Price') }}</label>
+                                        <input id="item_Price_input" type="number" min="0" step="any" name="item_Price"
+                                            class="item-form-control form-control"
+                                            placeholder="{{ translate('Price') }}">
+                                    </div>
+                                    <div class="form-group col-sm-5">
+                                        <label id="item_freeAmount_label" class="item_freeAmount-label"
+                                            for="item_freeAmount_input">{{ translate('Free Upto') }}</label>
+                                        <input id="item_freeAmount_input" value="1" min="0" step="1" type="number"
+                                            name="item_freeAmount"  class="item-form-control form-control"
+                                            placeholder="{{ translate('Enter Free Amount') }}">
+                                    </div>
+                                </div>
+                                <button id="add_item_btn" type="button"
+                                    class="btn btn-primary">{{ translate('Add') }}</button>
+                                <div class="col-md-12">
+                                    <div class="item_list" id="item_list">
+                                        @if($product['structure'] != null)
+                                            {{-- <script>
+                                                sessionStorage.setItem('itm_list', JSON.stringify(itmarr))
+                                            </script> --}}
+                                            <table id="itm_table" class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <label for="" class="control-label">Item</label>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <label for="" class="control-label">Price</label>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <label for="" class="control-label">Default Amount</label>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <label for="" class="control-label">Max Amount</label>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <label for="" class="control-label">Free Upto</label>
+                                                        </td>
+                                                        <td>
+                                                            <label for="" class="control-label">Action</label>
+                                                        </td>
+                                                    </tr>
+                                                </thead>
+                                                {{-- @php(Illuminate\Support\Facades\Log::info($product['meal_price']))                 --}}
+                                                <tbody>
+                                                    @foreach (json_decode($product['structure'],true) as $key => $item)
+                                                        <tr>
+                                                            <td>{{$item['item']}}</td>
+                                                            <td>{{$item['item_Price']}}</td>
+                                                            <td>{{$item['item_defAmount']}}</td>
+                                                            <td>{{$item['item_maxAmount']}}</td>
+                                                            <td>{{$item['item_freeAmount']}}</td>
+                                                            <td>
+                                                                <button type="button" data-itm="{{ $key }}" class="btn btn-outline-danger itm-delete">
+                                                                    <i class="tio-delete" data-itm="{{ $key }}"  aria-hidden="true"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                            <script>
+                                               global["has_items"] = true;
+                                            </script>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-5 mt-4">
+                                    <label id="item_ttl_free_label" class="item_ttl_free-label"
+                                        for="item_ttl_free_input">{{ translate('Total Free Amount') }}</label>
+                                    <input id="item_ttl_free_input" type="number" value="0" min="0" step="1" name="item_ttl_free" class="form-control"
+                                        placeholder="{{ translate('Enter Amount') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                  
                     <div class="d-flex justify-content-end gap-3 mt-4">
                         <button type="reset" class="btn btn-secondary">{{translate('reset')}}</button>
                         <button type="submit" class="btn btn-primary">{{translate('update')}}</button>
@@ -476,6 +757,20 @@
                 getRequest('{{url('/')}}/admin/product/get-categories?parent_id=' + category + '&&sub_category=' + sub_category, 'sub-categories');
                 getRequest('{{url('/')}}/admin/product/get-categories?parent_id=' + sub_category + '&&sub_category=' + sub_sub_category, 'sub-sub-categories');
             }, 1000)
+            if(global['has_items'] == true){
+                let itmarr = new Array();
+                document.querySelectorAll("#itm_table tbody tr").forEach((el,ind)=>{
+                    let itm = {};
+                    itm['item']=el.children[0].innerText;
+                    itm['item_Price']=el.children[1].innerText;
+                    itm['item_defAmount']=el.children[2].innerText;
+                    itm['item_maxAmount']=el.children[3].innerText;
+                    itm['item_freeAmount']=el.children[4].innerText; 
+                    //console.log(itm);
+                    itmarr.push(itm);
+                })
+                sessionStorage.setItem('itm_list', JSON.stringify(itmarr));
+            }
         });
     </script>
 
@@ -541,6 +836,255 @@
 {{--        });--}}
 {{--        @endif--}}
 
+
+        // Added by Me (Sopan)
+        function RenderItemTable(itmarr){
+            let temp=`<table id="itm_table" class="table table-bordered">
+            <thead>
+            <tr>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Item')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Price')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Default Amount')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Max Amount')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Free Upto')}}</label>
+                </td>
+                <td>
+                    <label for="" class="control-label">Action</label>
+                </td>
+            </tr>
+            </thead>
+             <tbody>
+             </tbody>
+            </table>`
+            $('#item_list').html(temp);
+            itmarr.forEach((item,ind)=>{
+                /*let trtemp=`
+                <tr>
+                    <td>${item["item"]}</td>
+                    <td>${item["item_defAmount"]}</td>
+                    <td>${item["item_Price"]}</td>
+                    <td>${item["item_freeAmount"]}</td>
+                    <td>${item["item_maxAmount"]}</td>
+                </tr>
+                `*/
+                 let tditem = $("<td></td>").text(item["item"]);
+                let tditmprice = $("<td></td>").text(item["item_Price"]);
+                let tditem_defAmount = $("<td></td>").text(item["item_defAmount"]);
+                let tditem_maxAmount = $("<td></td>").text(item["item_maxAmount"]);
+                let tditem_freeAmount = $("<td></td>").text(item["item_freeAmount"]);
+                let tddltbtn = `
+                    <td>
+                        <button type="button" data-itm="${ind}" class="btn btn-outline-danger itm-delete">
+                            <i class="tio-delete" data-itm="${ind}" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                `
+                let tr=$("<tr></tr>").append(tditem,tditmprice,tditem_defAmount,tditem_maxAmount,tditem_freeAmount,tddltbtn);
+                $("#itm_table tbody").append(tr);
+            })
+            console.log(itmarr);
+            $(".itm-delete").on("click",(el)=>{
+                console.log(el.target.getAttribute("data-itm"));
+                let itmarr = JSON.parse(sessionStorage.getItem('itm_list'));
+                if(itmarr.length != 1){
+                    itmarr.splice(el.target.getAttribute("data-itm") * 1, 1);
+                    sessionStorage.setItem('itm_list', JSON.stringify(itmarr));
+                    RenderItemTable(itmarr);
+                }else{
+                    sessionStorage.removeItem('itm_list');
+                    $('#item_list').html(null);
+                }
+            });
+        }
+        $("#add_item_btn").on('click', function() {
+            let idata = $(".item-form-control").serializeArray();
+            let itm = new Object();
+
+            for(let i = 0;i <idata.length;i++){
+                let itmprop = idata[i];
+                if(!itmprop.value) {
+                    toastr.error(`${itmprop.name} is empty`, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                    return;
+                }
+                itm[itmprop.name] = itmprop.value;
+            }
+            /*idata.forEach((el) => {
+                let itmprop = el.split("=");
+                itm[itmprop[0]] = itmprop[1];
+            })*/
+            if(itm.item_defAmount * 1 > itm.item_maxAmount * 1){
+                toastr.error(`Default amount cannot be higher than max amount`, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                return;
+            }
+            if(itm.item_defAmount % 1 != 0 || itm.item_maxAmount % 1 != 0 || itm.item_freeAmount % 1 != 0){
+                toastr.error(`Amount cannot be Decimal`, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                return;
+            }
+            if(itm.item_freeAmount * 1 > itm.item_maxAmount * 1){
+                toastr.error(`Free amount cannot be higher than max amount`, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                return;
+            }
+            let itmarr = new Array();
+            if (sessionStorage.getItem('itm_list') == null) {
+                itmarr.push(itm);
+                sessionStorage.setItem('itm_list', JSON.stringify(itmarr))
+            } else {
+                itmarr = JSON.parse(sessionStorage.getItem('itm_list'));
+
+                for (let i = 0; i < itmarr.length; i++) {
+                    if (itmarr[i].item == itm.item) {
+                        toastr.error("Item Already Exists", {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                        return;
+                    }
+                }
+                itmarr.push(itm);
+                sessionStorage.setItem('itm_list', JSON.stringify(itmarr));
+            }
+            RenderItemTable(itmarr);
+
+        });
+        $(".itm-delete").on("click",(el)=>{
+            console.log(el.target.getAttribute("data-itm"));
+            let itmarr = JSON.parse(sessionStorage.getItem('itm_list'));
+            if(itmarr.length != 1){
+                itmarr.splice(el.target.getAttribute("data-itm") * 1, 1);
+                sessionStorage.setItem('itm_list', JSON.stringify(itmarr));
+                RenderItemTable(itmarr);
+            }else{
+                sessionStorage.removeItem('itm_list');
+                $('#item_list').html(null);
+            }
+        });
+        //Added by Me (Sopan)
+        $("#has_meal_deal").on("change",function (el){
+            if(el.target.value * 1 == 1){
+                $("#meal_deal").show();
+                let variantheader = 
+                `<td class="text-center" id="variantheader">
+                    <label for="" class="control-label">{{translate('Variant Meal Price')}}</label>
+                </td>`;
+                $("#variant-table thead tr").append(variantheader);
+                $(".variant_meal_price").show();
+                $(".variant_meal_price input").prop("required",true);
+            }else{
+                $("#meal_deal").hide();
+                $("#variantheader").remove();
+                $(".variant_meal_price input").prop("required",false);;
+                $(".variant_meal_price").hide();
+            };
+        });
+
+        $(".add_meal_type_btn").on('click', function(el) {
+            let is_side = false;
+            let type = "";
+            if(el.target.hasAttribute("data-side")){
+                is_side = true;
+                type = "side";
+            }else if(el.target.hasAttribute("data-dip")){
+                type = "dip";
+            }else{
+                type = "drink";
+            }
+            let sdata = $(`.${type}-form-control`).serializeArray();
+            let sde = new Object();
+
+            if($("#has_meal_deal")[0].value * 1 != 1){
+                toastr.error("Has Meal Deal is set to No", {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                return;
+            }
+
+            if(!sdata[0].value || !sdata[1].value){
+                toastr.error("Name or price is empty", {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                return;
+            }
+            sde["Name"] = sdata[0].value; 
+            sde["Price"] = sdata[1].value * 1; 
+
+            let sidearr = new Array();
+            if (sessionStorage.getItem(`${type}_list`) == null) {
+                sidearr.push(sde);
+                sessionStorage.setItem(`${type}_list`, JSON.stringify(sidearr))
+            } else {
+                sidearr = JSON.parse(sessionStorage.getItem(`${type}_list`));
+
+                for (let i = 0; i < sidearr.length; i++) {
+                    if (sidearr[i].Name == sde.Name) {
+                        toastr.error(`${type} Already Exists`, {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                        return;
+                    }
+                }
+                sidearr.push(sde);
+                sessionStorage.setItem(`${type}_list`, JSON.stringify(sidearr));
+            }
+            let temp = `
+            <table id="${type}_table" class="table table-bordered">
+                <thead>
+                <tr>
+                    <td class="text-center">
+                        <label for="" class="control-label">{{translate('Name')}}</label>
+                    </td>
+                    <td class="text-center">
+                        <label for="" class="control-label">{{translate('Price')}}</label>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+             </table>   
+            `
+
+            $(`#${type}_list`).html(temp);
+            sidearr.forEach((el)=>{
+                /*let trtemp=`
+                <tr>
+                    <td>${el["Name"]}</td>
+                    <td>${el["Price"]}</td>
+                </tr>
+                `*/
+                let tdn = $("<td></td>").text(el["Name"]);
+                let tdp = $("<td></td>").text(el["Price"]);
+                let tr=$("<tr></tr>").append(tdn,tdp);
+                $(`#${type}_table tbody`).append(tr);
+            })
+            console.log(sidearr);
+
+        });
+
+
+
         $('#product_form').on('submit', function () {
 
 {{--            @if($language)--}}
@@ -555,6 +1099,32 @@
 
             var formData = new FormData(this);
 
+            formData.delete("item");
+            formData.delete("item_defAmount");
+            formData.delete("item_maxAmount");
+            formData.delete("item_Price");
+            formData.delete("item_freeAmount");
+            // formData.delete("has_meal_deal");
+            formData.delete("side");
+            formData.delete("side_Price");
+            formData.delete("drink");
+            formData.delete("drink_Price");
+
+            if(formData.get("has_meal_deal")*1 == 1){
+                if(sessionStorage.getItem('side_list')) formData.append("sides", sessionStorage.getItem('side_list'));
+                if(sessionStorage.getItem('drink_list')) formData.append("drinks", sessionStorage.getItem('drink_list'));
+                if(sessionStorage.getItem('dip_list')) formData.append("dips", sessionStorage.getItem('dip_list'));
+            }else{
+                formData.delete("has_meal_deal");
+            };
+            
+            if(sessionStorage.getItem('itm_list')){
+                formData.append("structure", sessionStorage.getItem('itm_list'));
+            }
+
+            console.log(formData);
+
+            
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

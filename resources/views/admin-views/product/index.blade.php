@@ -169,7 +169,7 @@
                                                             {{-- <option selected disabled>---{{translate('select')}}---</option> --}}
                                                             <option value="0" selected>{{ translate('product') }}
                                                                 {{ translate('item') }}</option>
-                                                            <option value="1">{{ translate('set_menu') }}</option>
+                                                            <option value="1">Meal Deal</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -181,6 +181,7 @@
                                                         </label>
                                                         <select name="product_type" class="form-control js-select2-custom"
                                                             required>
+                                                            <option selected value="none">Customizable</option>
                                                             <option value="veg">{{ translate('veg') }}</option>
                                                             <option value="non_veg">{{ translate('nonveg') }}</option>
                                                         </select>
@@ -405,7 +406,7 @@
                                                             <div class="row">
                                                                 <div class="form-group col-sm-5">
                                                                     <label id="dip_label" class="input-label"
-                                                                        for="dip_input">{{ translate('Dips') }}</label>
+                                                                        for="dip_input">{{ translate('Dip') }}</label>
                                                                     <input id="dip_input" type="text" name="dip" class="dip-form-control form-control"
                                                                         placeholder="{{ translate('Dip Name') }}">
                                                                 </div>
@@ -753,6 +754,20 @@
                             });
                 return;
             }
+            if(itm.item_defAmount % 1 != 0 || itm.item_maxAmount % 1 != 0 || itm.item_freeAmount % 1 != 0){
+                toastr.error(`Amount cannot be Decimal`, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                return;
+            }
+            if(itm.item_freeAmount * 1 > itm.item_maxAmount * 1){
+                toastr.error(`Free amount cannot be higher than max amount`, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                return;
+            }
             let itmarr = new Array();
             if (sessionStorage.getItem('itm_list') == null) {
                 itmarr.push(itm);
@@ -794,22 +809,22 @@
                     <label for="" class="control-label">{{translate('Item')}}</label>
                 </td>
                 <td class="text-center">
-                    <label for="" class="control-label">{{translate('Default Amount')}}</label>
-                </td>
-                <td class="text-center">
                     <label for="" class="control-label">{{translate('Price')}}</label>
                 </td>
                 <td class="text-center">
-                    <label for="" class="control-label">{{translate('Free Upto')}}</label>
+                    <label for="" class="control-label">{{translate('Default Amount')}}</label>
                 </td>
                 <td class="text-center">
                     <label for="" class="control-label">{{translate('Max Amount')}}</label>
+                </td>
+                <td class="text-center">
+                    <label for="" class="control-label">{{translate('Free Upto')}}</label>
                 </td>
             </tr>
             </thead>
              <tbody>
              </tbody>
-        </table>`
+            </table>`
             $('#item_list').html(temp);
             itmarr.forEach((item)=>{
                 /*let trtemp=`
@@ -822,18 +837,18 @@
                 </tr>
                 `*/
                 let tditem = $("<td></td>").text(item["item"]);
-                let tditem_defAmount = $("<td></td>").text(item["item_defAmount"]);
                 let tditmprice = $("<td></td>").text(item["item_Price"]);
-                let tditem_freeAmount = $("<td></td>").text(item["item_freeAmount"]);
+                let tditem_defAmount = $("<td></td>").text(item["item_defAmount"]);
                 let tditem_maxAmount = $("<td></td>").text(item["item_maxAmount"]);
+                let tditem_freeAmount = $("<td></td>").text(item["item_freeAmount"]);
                 
-                let tr=$("<tr></tr>").append(tditem,tditem_defAmount,tditmprice,tditem_freeAmount,tditem_maxAmount);
+                let tr=$("<tr></tr>").append(tditem,tditmprice,tditem_defAmount,tditem_maxAmount,tditem_freeAmount);
                 $("#itm_table tbody").append(tr);
             })
             console.log(itmarr);
 
         });
-
+        //Added by Me (Sopan)
         $("#has_meal_deal").on("change",function (el){
             if(el.target.value * 1 == 1){
                 $("#meal_deal").show();
@@ -843,18 +858,20 @@
                 </td>`;
                 $("#variant-table thead tr").append(variantheader);
                 $(".variant_meal_price").show();
+                $(".variant_meal_price input").prop("required",true);
             }else{
                 $("#meal_deal").hide();
                 $("#variantheader").remove();
+                $(".variant_meal_price input").prop("required",false);;
                 $(".variant_meal_price").hide();
             };
         });
 
         $(".add_meal_type_btn").on('click', function(el) {
-            let is_side = false;
+            //let is_side = false;
             let type = "";
             if(el.target.hasAttribute("data-side")){
-                is_side = true;
+              //  is_side = true;
                 type = "side";
             }else if(el.target.hasAttribute("data-dip")){
                 type = "dip";
@@ -880,7 +897,7 @@
                 return;
             }
             sde["Name"] = sdata[0].value; 
-            sde["Price"] = sdata[1].value; 
+            sde["Price"] = sdata[1].value * 1; 
 
             let sidearr = new Array();
             if (sessionStorage.getItem(`${type}_list`) == null) {
@@ -964,7 +981,9 @@
             formData.delete("side_Price");
             formData.delete("drink");
             formData.delete("drink_Price");
-
+            if(formData.get("product_type") == "none"){
+                formData.delete('product_type');
+            }
             if(formData.get("has_meal_deal")*1 == 1){
                 if(sessionStorage.getItem('side_list')) formData.append("sides", sessionStorage.getItem('side_list'));
                 if(sessionStorage.getItem('drink_list')) formData.append("drinks", sessionStorage.getItem('drink_list'));
@@ -978,7 +997,7 @@
             }
 
             console.log(formData);
-
+            
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1086,6 +1105,7 @@
                         </td>`;
                         $("#variant-table thead tr").append(variantheader);
                         $(".variant_meal_price").show();
+                        $(".variant_meal_price input").prop("required",true);
                     }
                 }
             });
