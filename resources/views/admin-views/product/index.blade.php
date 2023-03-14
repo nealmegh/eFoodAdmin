@@ -1100,7 +1100,7 @@
                     //Added by Me(Sopan)
                     if($("#has_meal_deal")[0].value * 1 == 1){
                         let variantheader = 
-                        `<td class="text-center">
+                        `<td class="text-center" id="variantheader">
                             <label for="" class="control-label">{{translate('Variant Meal Price')}}</label>
                         </td>`;
                         $("#variant-table thead tr").append(variantheader);

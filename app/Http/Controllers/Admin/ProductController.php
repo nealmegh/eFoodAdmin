@@ -244,7 +244,7 @@ class ProductController extends Controller
                 Log::info($request);
                 $price = $request['price_' . str_replace(' ', '_', $str)];
                 $item['price'] = abs($price);
-                $item['var_meal_price'] = abs($request['meal_price_' . str_replace(' ', '_', $str)]);
+                $item['var_meal_price'] = $request->has('has_meal_deal') ? abs($request['meal_price_' . str_replace(' ', '_', $str)]):0;
                 array_push($variations, $item);
             }
         }
@@ -268,7 +268,7 @@ class ProductController extends Controller
         $product->status = $request->status == 'on' ? 1 : 0;
         //Added by Me Sopan
         $product->structure = $request->has('structure') ? $request->structure:null;
-        $product->meal_price  = $request->has('meal_price') ? $request->meal_price:null;
+        $product->meal_price  = $request->has('meal_price') && $request->has('has_meal_deal') ? $request->meal_price:null;
         $product->sides  = $request->has('sides') ? $request->sides:null;
         $product->drinks  = $request->has('drinks') ? $request->drinks:null;
         $product->dips  = $request->has('dips') ? $request->dips:null;
@@ -383,7 +383,12 @@ class ProductController extends Controller
                 }
                 $item['name'] = 'choice_' . $no;
                 $item['title'] = $request->choice[$key];
-                $item['options'] = explode(',', implode('|', preg_replace('/\s+/', ' ', $request[$str])));
+                $opts = explode(',', implode('|', preg_replace('/\s+/', ' ', $request[$str])));
+                foreach ($opts as $key => $opt) {
+                    $opts[$key] = preg_replace('/^[ \t]+/','',$opt);
+                    // Log::info($opts[$key]);
+                  } 
+                $item['options'] = $opts;
                 array_push($choice_options, $item);
             }
         }
@@ -394,25 +399,35 @@ class ProductController extends Controller
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_' . $no;
                 $my_str = implode('|', $request[$name]);
-                array_push($options, explode(',', $my_str));
+                // Added by Me
+                $my_choices = explode(',', $my_str);
+                foreach ($my_choices as $key => $ch) {
+                    $my_choices[$key] = preg_replace('/^[ \t]+/','',$ch);
+                    // Log::info($my_choices[$key]);
+                  } 
+                array_push($options, $my_choices);
             }
         }
         //Generates the combinations of customer choice options
         $combinations = Helpers::combinations($options);
+        Log::info($options);
         if (count($combinations[0]) > 0) {
             foreach ($combinations as $key => $combination) {
                 $str = '';
                 foreach ($combination as $k => $item) {
                     if ($k > 0) {
-                        $str .= '-' . str_replace(' ', '', $item);
+                        $str .= '-' . str_replace('', '', $item);
                     } else {
-                        $str .= str_replace(' ', '', $item);
+                        $str .= str_replace('', '', $item);
                     }
                 }
                 $item = [];
                 $item['type'] = $str;
-                $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
-                
+                Log::info($request);
+                $price = $request['price_' . str_replace(' ', '_', $str)];
+                $item['price'] = abs($price);
+                $item['var_meal_price'] = $request->has('has_meal_deal') ? abs($request['meal_price_' . str_replace(' ', '_', $str)]):0;
+                Log::info($item);
                 array_push($variations, $item);
             }
         }
@@ -434,7 +449,17 @@ class ProductController extends Controller
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->add_ons = $request->has('addon_ids') ? json_encode($request->addon_ids) : json_encode([]);
         $product->status = $request->status == 'on' ? 1 : 0;
+        
 
+         //Added by Me Sopan
+         $product->structure = $request->has('structure') ? $request->structure:null;
+         $product->meal_price  = $request->has('meal_price') && $request->has('has_meal_deal') ? $request->meal_price:null;
+         $product->sides  = $request->has('sides') ? $request->sides:null;
+         $product->drinks  = $request->has('drinks') ? $request->drinks:null;
+         $product->dips  = $request->has('dips') ? $request->dips:null;
+         $product->item_ttl_free = $request->has('item_ttl_free') ? $request->item_ttl_free:0;
+         //Added by Me Sopan end
+         
         $product->save();
 
         foreach ($request->lang as $index => $key) {

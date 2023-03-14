@@ -383,17 +383,7 @@
                                                                 </tbody>
                                                             </table>
                                                             <script>
-                                                                window.onload = (event) => {
-                                                                    let sidearr = new Array();
-                                                                    document.querySelectorAll("#sides_table tbody tr").forEach((el,ind)=>{
-                                                                        let side = {};
-                                                                        side['Name']=el.children[0].innerText;
-                                                                        side['Price']=el.children[1].innerText;
-                                                                        console.log(side);
-                                                                        sidearr.push(side);
-                                                                    })
-                                                                    sessionStorage.setItem('side_list', JSON.stringify(itmarr));
-                                                                };  
+                                                                global['has_sides'] = true;
                                                             </script>
                                                         @endif
                                                     </div>
@@ -422,7 +412,41 @@
                                                         <button data-drink id="add_drink_btn" type="button"
                                                             class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
                                                     </div>
-                                                    <div class="drink_list" id="drink_list"></div>
+                                                    <div class="drink_list" id="drink_list">
+                                                        @if($product['drinks'] != null)
+                                                            <table id="drinks_table" class="table table-bordered">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Name')}}</label>
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Price')}}</label>
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Action')}}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </thead>
+                                                                 <tbody>
+                                                                    @foreach (json_decode($product['drinks'],true) as $key => $drink)
+                                                                        <tr>
+                                                                            <td>{{$drink['Name']}}</td>
+                                                                            <td>{{$drink['Price']}}</td>
+                                                                            <td>
+                                                                                <button type="button" data-drink="{{ $key }}" class="btn btn-outline-danger drink-delete">
+                                                                                    <i class="tio-delete" data-drink="{{ $key }}"  aria-hidden="true"></i>
+                                                                                </button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                            <script>
+                                                                global['has_drinks'] = true;
+                                                            </script>
+                                                        @endif
+                                                    </div>
 
                                                 </section>
 
@@ -450,7 +474,41 @@
                                                         <button data-dip id="add_dip_btn" type="button"
                                                             class="btn btn-primary add_meal_type_btn">{{ translate('Add') }}</button>
                                                     </div>
-                                                    <div class="dip_list" id="dip_list"></div>
+                                                    <div class="dip_list" id="dip_list">
+                                                        @if($product['dips'] != null)
+                                                            <table id="dips_table" class="table table-bordered">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Name')}}</label>
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Price')}}</label>
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            <label for="" class="control-label">{{translate('Action')}}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </thead>
+                                                                 <tbody>
+                                                                    @foreach (json_decode($product['dips'],true) as $key => $dip)
+                                                                        <tr>
+                                                                            <td>{{$dip['Name']}}</td>
+                                                                            <td>{{$dip['Price']}}</td>
+                                                                            <td>
+                                                                                <button type="button" data-dip="{{ $key }}" class="btn btn-outline-danger dip-delete">
+                                                                                    <i class="tio-delete" data-dip="{{ $key }}"  aria-hidden="true"></i>
+                                                                                </button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                            <script>
+                                                                global['has_dips'] = true;
+                                                            </script>
+                                                        @endif
+                                                    </div>
                                                 </section>
 
                                             </div>
@@ -507,6 +565,7 @@
                                     </div>
                                     <div class="col-md-12 mt-2 mb-2">
                                         <div class="variant_combination" id="variant_combination">
+                                                {{-- @php(Illuminate\Support\Facades\Log::info(json_decode($product['variations']))) --}}
                                             @include('admin-views.product.partials._edit-combinations',['combinations'=>json_decode($product['variations'],true)])
                                         </div>
                                     </div>
@@ -750,7 +809,11 @@
         }
 
         $(document).ready(function () {
+            sessionStorage.clear();
             setTimeout(function () {
+                $(".choices-input").on("change",()=>{
+                    combination_update();
+                });
                 let category = $("#category-id").val();
                 let sub_category = '{{count($product_category)>=2?$product_category[1]->id:''}}';
                 let sub_sub_category = '{{count($product_category)>=3?$product_category[2]->id:''}}';
@@ -771,6 +834,49 @@
                 })
                 sessionStorage.setItem('itm_list', JSON.stringify(itmarr));
             }
+            if(global['has_sides'] == true){
+                let sidearr = new Array();
+                document.querySelectorAll("#sides_table tbody tr").forEach((el,ind)=>{
+                    let side = {};
+                    side['Name']=el.children[0].innerText;
+                    side['Price']=el.children[1].innerText;
+                    console.log(side);
+                    sidearr.push(side);
+                })
+                sessionStorage.setItem('side_list', JSON.stringify(sidearr));
+            }
+            if(global['has_drinks'] == true){
+                let drinkarr = new Array();
+                document.querySelectorAll("#drinks_table tbody tr").forEach((el,ind)=>{
+                    let drink = {};
+                    drink['Name']=el.children[0].innerText;
+                    drink['Price']=el.children[1].innerText;
+                    console.log(drink);
+                    drinkarr.push(drink);
+                })
+                sessionStorage.setItem('drink_list', JSON.stringify(drinkarr));
+            }
+            if(global['has_dips'] == true){
+                let diparr = new Array();
+                document.querySelectorAll("#dips_table tbody tr").forEach((el,ind)=>{
+                    let dip = {};
+                    dip['Name']=el.children[0].innerText;
+                    dip['Price']=el.children[1].innerText;
+                    console.log(dip);
+                    diparr.push(dip);
+                })
+                sessionStorage.setItem('dip_list', JSON.stringify(diparr));
+            }
+            
+            if($("#has_meal_deal")[0].value * 1 == 1){
+                    let variantheader = 
+                    `<td class="text-center" id="variantheader">
+                        <label for="" class="control-label">{{translate('Variant Meal Price')}}</label>
+                    </td>`;
+                    $("#variant-table thead tr").append(variantheader);
+                    $(".variant_meal_price").show();
+                    $(".variant_meal_price input").prop("required",true);
+                }
         });
     </script>
 
@@ -786,6 +892,7 @@
 
     <script>
         $('#choice_attributes').on('change', function () {
+            console.log("Called");
             $('#customer_choice_options').html(null);
             $.each($("#choice_attributes option:selected"), function () {
                 add_more_customer_choice_option($(this).val(), $(this).text());
@@ -793,12 +900,22 @@
         });
 
         function add_more_customer_choice_option(i, name) {
-            let n = name.split(' ').join('');
-            $('#customer_choice_options').append('<div class="row"><div class="col-md-3"><input type="hidden" name="choice_no[]" value="' + i + '"><input type="text" class="form-control" name="choice[]" value="' + n + '" placeholder="Choice Title" readonly></div><div class="col-lg-9"><input type="text" class="form-control" name="choice_options_' + i + '[]" placeholder="Enter choice values" data-role="tagsinput" onchange="combination_update()"></div></div>');
+            //let n = name.split(' ').join('');
+            //$('#customer_choice_options').append('<div class="row"><div class="col-md-3"><input type="hidden" name="choice_no[]" value="' + i + '"><input type="text" class="form-control" name="choice[]" value="' + n + '" placeholder="Choice Title" readonly></div><div class="col-lg-9"><input type="text" class="form-control" name="choice_options_' + i + '[]" placeholder="Enter choice values" data-role="tagsinput" onchange="combination_update()"></div></div>');
+            //$("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
+            //Added by Me
+            $('#customer_choice_options').append(
+                '<div class="row"><div class="col-md-3"><input type="hidden" name="choice_no[]" value="' + i +
+                '"><input type="text" class="form-control" name="choice[]" value="' + name +
+                '" placeholder="Choice Title" readonly></div><div class="col-lg-9"><input type="text" class="form-control" name="choice_options_' +
+                i +
+                '[]" placeholder="Enter choice values" data-role="tagsinput" onchange="combination_update()"></div></div>'
+                );
             $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
         }
 
         function combination_update() {
+            console.log("Sup")
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -815,6 +932,16 @@
                         $('#quantity').hide();
                     } else {
                         $('#quantity').show();
+                    }
+                    //Added by Me(Sopan)
+                    if($("#has_meal_deal")[0].value * 1 == 1){
+                        let variantheader = 
+                        `<td class="text-center" id="variantheader">
+                            <label for="" class="control-label">{{translate('Variant Meal Price')}}</label>
+                        </td>`;
+                        $("#variant-table thead tr").append(variantheader);
+                        $(".variant_meal_price").show();
+                        $(".variant_meal_price input").prop("required",true);
                     }
                 }
             });
@@ -997,7 +1124,63 @@
                 $(".variant_meal_price").hide();
             };
         });
+        function RenderMealItemTable(typearr,type){
+            console.log(typearr);
+            console.log(type);
+            let temp = `
+            <table id="${type}_table" class="table table-bordered">
+                <thead>
+                <tr>
+                    <td class="text-center">
+                        <label for="" class="control-label">{{translate('Name')}}</label>
+                    </td>
+                    <td class="text-center">
+                        <label for="" class="control-label">{{translate('Price')}}</label>
+                    </td>
+                    <td class="text-center">
+                        <label for="" class="control-label">{{translate('Action')}}</label>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+             </table>   
+            `
 
+            $(`#${type}_list`).html(temp);
+            typearr.forEach((el,ind)=>{
+                /*let trtemp=`
+                <tr>
+                    <td>${el["Name"]}</td>
+                    <td>${el["Price"]}</td>
+                </tr>
+                `*/
+                let tdn = $("<td></td>").text(el["Name"]);
+                let tdp = $("<td></td>").text(el["Price"]);
+                let tdaction = `
+                    <td>
+                        <button type="button" data-${type}="${ind}" class="btn btn-outline-danger ${type}-delete">
+                            <i class="tio-delete" data-${type}="${ind}"  aria-hidden="true"></i>
+                        </button>
+                    </td>
+                `
+                let tr=$("<tr></tr>").append(tdn,tdp,tdaction);
+                $(`#${type}_table tbody`).append(tr);
+            })
+            console.log(typearr);
+            $(`.${type}-delete`).on("click",(el)=>{
+                console.log(el.target.getAttribute(`data-${type}`));
+                let typearr = JSON.parse(sessionStorage.getItem(`${type}_list`));
+                if(typearr.length != 1){
+                    typearr.splice(el.target.getAttribute(`data-${type}`) * 1, 1);
+                    sessionStorage.setItem(`${type}_list`, JSON.stringify(typearr));
+                    RenderMealItemTable(typearr,type);
+                }else{
+                    sessionStorage.removeItem(`${type}_list`);
+                    $(`#${type}_list`).html(null);
+                }
+            });
+        }
         $(".add_meal_type_btn").on('click', function(el) {
             let is_side = false;
             let type = "";
@@ -1049,40 +1232,46 @@
                 sidearr.push(sde);
                 sessionStorage.setItem(`${type}_list`, JSON.stringify(sidearr));
             }
-            let temp = `
-            <table id="${type}_table" class="table table-bordered">
-                <thead>
-                <tr>
-                    <td class="text-center">
-                        <label for="" class="control-label">{{translate('Name')}}</label>
-                    </td>
-                    <td class="text-center">
-                        <label for="" class="control-label">{{translate('Price')}}</label>
-                    </td>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-             </table>   
-            `
-
-            $(`#${type}_list`).html(temp);
-            sidearr.forEach((el)=>{
-                /*let trtemp=`
-                <tr>
-                    <td>${el["Name"]}</td>
-                    <td>${el["Price"]}</td>
-                </tr>
-                `*/
-                let tdn = $("<td></td>").text(el["Name"]);
-                let tdp = $("<td></td>").text(el["Price"]);
-                let tr=$("<tr></tr>").append(tdn,tdp);
-                $(`#${type}_table tbody`).append(tr);
-            })
-            console.log(sidearr);
+            RenderMealItemTable(sidearr,type);
 
         });
 
+        $(".side-delete").on("click",(el)=>{
+            console.log(el.target.getAttribute("data-side"));
+            let sidearr = JSON.parse(sessionStorage.getItem('side_list'));
+            if(sidearr.length != 1){
+                sidearr.splice(el.target.getAttribute("data-side") * 1, 1);
+                sessionStorage.setItem('side_list', JSON.stringify(sidearr));
+                RenderMealItemTable(sidearr,'side');
+            }else{
+                sessionStorage.removeItem('side_list');
+                $('#side_list').html(null);
+            }
+        });
+        $(".drink-delete").on("click",(el)=>{
+            console.log(el.target.getAttribute("data-drink"));
+            let drinkarr = JSON.parse(sessionStorage.getItem('drink_list'));
+            if(drinkarr.length != 1){
+                drinkarr.splice(el.target.getAttribute("data-drink") * 1, 1);
+                sessionStorage.setItem('drink_list', JSON.stringify(drinkarr));
+                RenderMealItemTable(drinkarr,'drink');
+            }else{
+                sessionStorage.removeItem('drink_list');
+                $('#drink_list').html(null);
+            }
+        });
+        $(".dip-delete").on("click",(el)=>{
+            console.log(el.target.getAttribute("data-dip"));
+            let diparr = JSON.parse(sessionStorage.getItem('dip_list'));
+            if(diparr.length != 1){
+                diparr.splice(el.target.getAttribute("data-dip") * 1, 1);
+                sessionStorage.setItem('dip_list', JSON.stringify(diparr));
+                RenderMealItemTable(diparr,'dip');
+            }else{
+                sessionStorage.removeItem('dip_list');
+                $('#dip_list').html(null);
+            }
+        });
 
 
         $('#product_form').on('submit', function () {
