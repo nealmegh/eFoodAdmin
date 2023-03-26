@@ -9,6 +9,7 @@ use App\Model\Product;
 use App\Model\Review;
 use App\Model\Translation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,7 +28,13 @@ class ProductController extends Controller
         $products['products'] = Helpers::product_data_formatting($products['products'], true);
         return response()->json($products, 200);
     }
-
+    //Added by Me
+    public function get_exclusive_products(Request $request)
+    {
+        
+        $products = Helpers::product_data_formatting(Product::active()->with(['rating'])->where(['is_exclusive' => 1, 'status' => 1])->latest()->get(), true);
+        return response()->json($products, 200);
+    }
     public function get_searched_products(Request $request)
     {
         $validator = Validator::make($request->all(), [

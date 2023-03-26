@@ -63,6 +63,7 @@
                                                 {{-- <div id="{{$lang}}_editor"></div> --}}
                                                 <textarea name="description[]" class="form-control textarea-h-100" id="{{ $lang['code'] }}_hiddenArea"></textarea>
                                             </div>
+                                            
                                         </div>
                                     @endforeach
                                 @else
@@ -84,6 +85,12 @@
                                         </div>
                                     </div>
                                 @endif
+                                <div class="form-check form-control-lg">
+                                    <input style="accent-color:#EC6654" class="form-check-input" type="checkbox" value="1" id="is_exclusive" name="is_exclusive">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        Exclusive
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-6">
@@ -299,7 +306,7 @@
                                                         <label
                                                             class="input-label">{{ translate('available_From') }}</label>
                                                         <input type="time" name="available_time_starts"
-                                                            class="form-control" value="10:30:00"
+                                                            class="form-control" value="00:00:00"
                                                             placeholder="{{ translate('Ex : 10:30 am') }}" required>
                                                     </div>
                                                 </div>
@@ -308,7 +315,7 @@
                                                         <label
                                                             class="input-label">{{ translate('available_Till') }}</label>
                                                         <input type="time" name="available_time_ends"
-                                                            class="form-control" value="19:30:00"
+                                                            class="form-control" value="23:59:59"
                                                             placeholder="{{ translate('5:45 pm') }}" required>
                                                     </div>
                                                 </div>
@@ -479,6 +486,7 @@
                             </div>
                         </div>
                     </div>
+                    {{-- Product Structurte --}}
                     <div class="col-12">
                         <div class="card h-100">
                             <div class="card-header">
@@ -541,7 +549,7 @@
                     </div>
                     
 
-
+                    
 
                 {{-- Added by Me --}}
                                 {{-- <div class="col-12">
@@ -983,6 +991,9 @@
             formData.delete("drink_Price");
             if(formData.get("product_type") == "none"){
                 formData.delete('product_type');
+            }
+            if(formData.get("is_exclusive")*1 != 1){
+                formData.delete("is_exclusive");
             }
             if(formData.get("has_meal_deal")*1 == 1){
                 if(sessionStorage.getItem('side_list')) formData.append("sides", sessionStorage.getItem('side_list'));

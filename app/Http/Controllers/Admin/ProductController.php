@@ -273,6 +273,15 @@ class ProductController extends Controller
         $product->drinks  = $request->has('drinks') ? $request->drinks:null;
         $product->dips  = $request->has('dips') ? $request->dips:null;
         $product->item_ttl_free = $request->has('item_ttl_free') ? $request->item_ttl_free:0;
+        
+        $product->is_exclusive = $request->has('is_exclusive') ? $request->is_exclusive:0;
+        if($product->is_exclusive == 1){
+            $exclusives = Product::where('is_exclusive',1)->count();
+            if($exclusives >= 12){
+                $validator->getMessageBag()->add('name', translate('Cannot have more than 12 exclusive items!'));
+                return response()->json(['errors' => Helpers::error_processor($validator)]);
+            } 
+        }
         //Added by Me Sopan end
 
         $product->save();
@@ -410,7 +419,7 @@ class ProductController extends Controller
         }
         //Generates the combinations of customer choice options
         $combinations = Helpers::combinations($options);
-        Log::info($options);
+        // Log::info($options);
         if (count($combinations[0]) > 0) {
             foreach ($combinations as $key => $combination) {
                 $str = '';
@@ -458,6 +467,15 @@ class ProductController extends Controller
          $product->drinks  = $request->has('drinks') ? $request->drinks:null;
          $product->dips  = $request->has('dips') ? $request->dips:null;
          $product->item_ttl_free = $request->has('item_ttl_free') ? $request->item_ttl_free:0;
+         $product->is_exclusive = $request->has('is_exclusive') ? $request->is_exclusive:0;
+         $product->is_exclusive = $request->has('is_exclusive') ? $request->is_exclusive:0;
+         if($product->is_exclusive == 1){
+             $exclusives = Product::where('is_exclusive',1)->count();
+             if($exclusives >= 12){
+                 $validator->getMessageBag()->add('name', translate('Cannot have more than 12 exclusive items!'));
+                 return response()->json(['errors' => Helpers::error_processor($validator)]);
+             } 
+         }
          //Added by Me Sopan end
          
         $product->save();

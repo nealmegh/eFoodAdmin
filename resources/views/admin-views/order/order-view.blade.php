@@ -206,14 +206,14 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
                                         <div class="media gap-3 w-max-content">
-
+                                            @php(Illuminate\Support\Facades\Log::info($detail));
                                             <img class="img-fluid avatar avatar-lg"
-                                                 src="{{asset('storage/app/public/product/')}}/{{$detail->product['image']}}"
+                                                 src="{{asset('storage/app/public/product/')}}/{{$product_details["image"]}}"
                                                  onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
                                                  alt="Image Description">
 
                                             <div class="media-body text-dark fz-12">
-                                                <h6 class="text-capitalize">{{$detail->product['name']}}</h6>
+                                                <h6 class="text-capitalize">{{$product_details['name']}}</h6>
 
                                                 <div class="d-flex gap-2">
                                                     @php($variation_det = json_decode($detail['variation'],true))

@@ -4,9 +4,10 @@
 added /resources/views/admin-views/partials/_edit_combination.blade.oho  *done*
 added /resources/views/admin-views/partials/_sides_or_drinks-tables.blade.oho *done*
 
-/appp/http/Controllers/Admin/ProductController  *done*
+/appp/http/Controllers/Admin/ProductController *done*
 
 /routes/admin.php *done*
+/routes/api.php *done*
 
 added migration *done*
 

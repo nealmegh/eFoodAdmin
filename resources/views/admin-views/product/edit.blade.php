@@ -93,6 +93,12 @@
                                             </div>
                                         </div>
                                     @endif
+                                    <div class="form-check form-control-lg">
+                                    <input style="accent-color:#EC6654"{{ $product['is_exclusive'] == 1 ? 'checked':'' }} class="form-check-input" type="checkbox" value="1" id="is_exclusive" name="is_exclusive">
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        Exclusive
+                                    </label>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -1310,6 +1316,11 @@
             if(sessionStorage.getItem('itm_list')){
                 formData.append("structure", sessionStorage.getItem('itm_list'));
             }
+
+            if(formData.get("is_exclusive")*1 != 1){
+                formData.delete("is_exclusive");
+            }
+            
 
             console.log(formData);
 

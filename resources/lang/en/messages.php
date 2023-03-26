@@ -2268,4 +2268,6 @@
   'Dip' => 'Dip',
   'To Pay' => 'To Pay',
   'Action' => 'Action',
+  'Config Updated Successfully' => 'Config Updated Successfully',
+  'CAnnot have more than 12 excluysive items!' => 'CAnnot have more than 12 excluysive items!',
 );

@@ -146,7 +146,7 @@ class OrderController extends Controller
         $remaining_time = $ordered_time->add($order['preparation_time'], 'minute')->format('Y-m-d H:i:s');
         $order['remaining_time'] = $remaining_time;
         
-        Log::info($order);
+        // Log::info($order);
 
         return view('admin-views.order.order-view', compact('order'));
     }

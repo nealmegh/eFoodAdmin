@@ -114,7 +114,7 @@ class Helpers
                         'Price' => (double)$var['Price']
                     ]);
                 }
-                $item['dips'] = empty($dips) ? null:$drinks;
+                $item['dips'] = empty($dips) ? null:$dips;
 
                 foreach ((array) json_decode(($item['structure']), true) as $var) {
                     array_push($structure, [
@@ -211,7 +211,7 @@ class Helpers
                     'Price' => (double)$var['Price']
                 ]);
             }
-            $data['dips'] = empty($dips) ? null:$drinks;
+            $data['dips'] = empty($dips) ? null:$dips;
 
             foreach ((array) json_decode(($data['structure']), true) as $var) {
                 array_push($structure, [
