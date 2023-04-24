@@ -15,6 +15,7 @@ class AddItemsPriceToOrderDetails extends Migration
     {
         Schema::table('order_details', function (Blueprint $table) {
             //
+            $table->decimal("items_price");
         });
     }
 
@@ -27,6 +28,7 @@ class AddItemsPriceToOrderDetails extends Migration
     {
         Schema::table('order_details', function (Blueprint $table) {
             //
+            $table->dropColumn("items_price");
         });
     }
 }

@@ -6,10 +6,12 @@ use App\CentralLogics\Helpers;
 use App\Http\Controllers\Controller;
 use App\Model\Admin;
 use App\Model\BusinessSetting;
+use App\Model\Order;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
@@ -17,10 +19,28 @@ class SystemController extends Controller
 {
     public function restaurant_data()
     {
-        $new_order = DB::table('orders')->where(['checked' => 0])->count();
+        $order =DB::table('orders')->where(['checked' => 0]);
+        $new_order = $order->count();
+        $ord = $order->first();
+        
+        $or = $ord != null ?Order::where('id', $ord->id)->first():'';
+        $addons=[];
+        if($or!=''){
+            foreach($or->details as $key => $item){
+                $addids = json_decode($item['add_on_ids'],true);
+                $adds = [];
+                if(is_array($addids)){
+                    foreach ($addids as $id) {
+                        $addon = \App\Model\AddOn::find($id);
+                        array_push($adds,$addon);
+                    }
+                }
+                array_push($addons,$adds);
+            }
+        }
         return response()->json([
             'success' => 1,
-            'data' => ['new_order' => $new_order]
+            'data' => ['new_order' => $new_order,'order' => json_encode($or),'addons'=>json_encode($addons)]
         ]);
     }
 

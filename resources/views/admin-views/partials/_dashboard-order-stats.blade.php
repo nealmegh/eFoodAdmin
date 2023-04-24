@@ -6,14 +6,22 @@
         <img width="30" src="{{asset('public/assets/admin/img/icons/pending.png')}}" class="dashboard--card__img" alt="">
     </a>
 </div>
+{{-- @php(Illuminate\Support\Facades\Log::info($data)) --}}
 <div class="col-sm-6 col-lg-3">
-    <a href="{{route('admin.orders.list',['confirmed'])}}" class="dashboard--card">
-        <h5 class="dashboard--card__subtitle">{{translate('confirmed')}}</h5>
-        <h2 class="dashboard--card__title">{{$data['confirmed']}}</h2>
+    <a href="{{route('admin.orders.list',['accepted'])}}" class="dashboard--card">
+        <h5 class="dashboard--card__subtitle">{{'Accepted'}}</h5>
+        <h2 class="dashboard--card__title">{{$data['accepted']}}</h2>
         <img width="30" src="{{asset('public/assets/admin/img/icons/confirmed.png')}}" class="dashboard--card__img" alt="">
     </a>
 </div>
 <div class="col-sm-6 col-lg-3">
+    <a href="{{route('admin.orders.list',['declined'])}}" class="dashboard--card">
+        <h5 class="dashboard--card__subtitle">{{translate('declined')}}</h5>
+        <h2 class="dashboard--card__title">{{$data['declined']}}</h2>
+        <img width="30" src="{{asset('public/assets/admin/img/icons/failed_to_deliver.png')}}" class="dashboard--card__img" alt="">
+    </a>
+</div> 
+{{-- <div class="col-sm-6 col-lg-3">
     <a href="{{route('admin.orders.list',['processing'])}}" class="dashboard--card">
         <h5 class="dashboard--card__subtitle">{{translate('processing')}}</h5>
         <h2 class="dashboard--card__title">{{$data['processing']}}</h2>
@@ -26,9 +34,9 @@
         <h2 class="dashboard--card__title">{{$data['out_for_delivery']}}</h2>
         <img width="30" src="{{asset('public/assets/admin/img/icons/out_for_delivery.png')}}" class="dashboard--card__img" alt="">
     </a>
-</div>
+</div> --}}
 
-<div class="col-sm-6 col-lg-3">
+{{-- <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_pending" href="{{route('admin.orders.list',['delivered'])}}">
         <div class="order-stats__content">
@@ -40,7 +48,7 @@
         </span>
     </a>
     <!-- End Card -->
-</div>
+</div> --}}
 <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_canceled" href="{{route('admin.orders.list',['canceled'])}}">
@@ -54,7 +62,7 @@
     </a>
     <!-- End Card -->
 </div>
-<div class="col-sm-6 col-lg-3">
+{{-- <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_returned" href="{{route('admin.orders.list',['returned'])}}">
         <div class="order-stats__content">
@@ -66,8 +74,8 @@
         </span>
     </a>
     <!-- End Card -->
-</div>
-<div class="col-sm-6 col-lg-3">
+</div> --}}
+{{-- <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_failed" href="{{route('admin.orders.list',['failed'])}}">
         <div class="order-stats__content">
@@ -80,4 +88,4 @@
         </span>
     </a>
     <!-- End Card -->
-</div>
+</div> --}}

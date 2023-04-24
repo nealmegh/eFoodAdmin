@@ -88,6 +88,10 @@
                                 {{ translate('Phone : ') }}<span
                                     class="font-weight-normal">{{ $order->customer['phone'] }}</span>
                             </h5>
+                            <h5>
+                                {{ ('Order Type : ') }}<span
+                                    class="font-weight-normal">{{ $order['order_type'] }}</span>
+                            </h5>
                             @php($address = \App\Model\CustomerAddress::find($order['delivery_address_id']))
                             <h5>
                                 {{ translate('Address : ') }}<span
@@ -95,9 +99,19 @@
                             </h5>
                         @endif
                     </div>
+                    
                 </div>
-                <h5 class="text-uppercase"></h5>
+                <h5 class="text-center pt-3">
+                    {{ translate('Payment:  ') }}<span
+                        class="font-weight-normal">{{ $order['payment_method'] == 'cash_on_delivery' ? 'COD':'Paid'}}</span>
+                </h5>
+                {{-- <h5 class="text-uppercase"></h5> --}}
+                <h5>
+                    {{ ('Note: ') }}<span
+                        class="font-weight-normal">{{ $order['order_note'] }}</span>
+                </h5>
                 <hr class="text-dark hr-style-2">
+
                 <table class="table table-bordered mt-3">
                     <thead>
                         <tr>
@@ -121,7 +135,7 @@
                                 @php($product_details = json_decode($detail['product_details'], true))
                                 @php($structure = json_decode($product_details['structure'], true))
                                 @php($items = json_decode($detail['items'], true))
-                                @php($total_free = $product_details['item_ttl_free']);
+                                @php($total_free = $product_details['item_ttl_free'])
 
                                 @php($is_meal = json_decode($detail['is_meal'], true))
                                 @php($sides = json_decode($detail['sides'], true))
@@ -130,9 +144,9 @@
 
                                 {{-- @php($quantity = $detail['quantity']) --}}
 
-                                @php($exta_items_quantity = 0)
+                                {{-- @php($exta_items_quantity = 0) --}}
                                 @php($meal_items_price=0)
-                                @php($items_price = 0)
+                                @php($items_price = $detail['items_price'])
                                 @php($add_on_qtys = json_decode($detail['add_on_qtys'], true))
                                 <tr>
                                     <td class="">
@@ -202,7 +216,7 @@
                                                     </span>
                                                 </div>
                                                 {{-- @php($add_ons_cost+=$addon['price']*$add_on_qty) --}}
-                                                @php($amount_to_pay = 0)
+                                                {{-- @php($amount_to_pay = 0)
                                                 @if ($item['quantity'] > $structure[$key3]['item_freeAmount'])
                                                     @php($pay_qty = $item['quantity'] - $structure[$key3]['item_freeAmount'])
                                                     @php($exta_items_quantity += $pay_qty)
@@ -211,9 +225,9 @@
                                                     @else
                                                         @php($amount_to_pay = $structure[$key3]['item_Price'] * $pay_qty)
                                                     @endif
-                                                @endif
+                                                @endif --}}
                                                 {{-- @php(Illuminate\Support\Facades\Log::info($amount_to_pay))                 --}}
-                                                @php($items_price += $amount_to_pay)
+                                                {{-- @php($items_price += $amount_to_pay) --}}
                                             @endforeach
                                         @endif
                                         @if (count((is_countable($items)?$items:[])) > 0)              
@@ -271,8 +285,9 @@
                         @endforeach
                     </tbody>
                 </table>
-
-
+                
+                 
+                
                 <div class="row justify-content-md-end mb-3" style="width: 99%">
                     <div class="col-md-7 col-lg-7">
                         <dl class="row text-right" style="color: black!important;">
@@ -321,6 +336,7 @@
                     </div>
                 </div>
                 <hr class="text-dark hr-style-2">
+                
                 <h5 class="text-center pt-3">
                     {{ translate('"""THANK YOU"""') }}
                 </h5>

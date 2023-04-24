@@ -14,6 +14,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Rap2hpoutre\FastExcel\FastExcel;
 use function App\CentralLogics\translate;
 use Carbon\Carbon;
@@ -93,34 +94,38 @@ class OrderController extends Controller
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'confirmed' =>  Order::notPos()->notDineIn()->where(['order_status'=>'confirmed'])->notSchedule()
+            'accepted' =>  Order::notPos()->notDineIn()->where(['order_status'=>'accepted'])->notSchedule()
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'processing' => Order::notPos()->notDineIn()->where(['order_status'=>'processing'])->notSchedule()
+            'declined' => Order::notPos()->notDineIn()->where(['order_status'=>'declined'])->notSchedule()
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'out_for_delivery' => Order::notPos()->notDineIn()->where(['order_status'=>'out_for_delivery'])->notSchedule()
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
-            'delivered' =>  Order::notPos()->notDineIn()->where(['order_status'=>'delivered'])
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
+            'completed' => Order::notPos()->notDineIn()->where(['order_status'=>'completed'])->notSchedule()
+            ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+                $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            })->count(),
+            // 'out_for_delivery' => Order::notPos()->notDineIn()->where(['order_status'=>'out_for_delivery'])->notSchedule()
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
+            // 'delivered' =>  Order::notPos()->notDineIn()->where(['order_status'=>'delivered'])
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
             'canceled' =>   Order::notPos()->notDineIn()->where(['order_status'=>'canceled'])->notSchedule()
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'returned' =>   Order::notPos()->notDineIn()->where(['order_status'=>'returned'])->notSchedule()
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
-            'failed' =>     Order::notPos()->notDineIn()->where(['order_status'=>'failed'])->notSchedule()
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
+            // 'returned' =>   Order::notPos()->notDineIn()->where(['order_status'=>'returned'])->notSchedule()
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
+            // 'failed' =>     Order::notPos()->notDineIn()->where(['order_status'=>'failed'])->notSchedule()
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
         ];
 
         $orders = $query->notPos()->notDineIn()->latest()->paginate(Helpers::getPagination())->appends($query_param);
@@ -134,10 +139,18 @@ class OrderController extends Controller
             ->first();
 
 //        dd ($order->branch);
-
+        
+        
         if(!isset($order)) {
             Toastr::info(translate('No more orders!'));
             return back();
+        }
+        
+
+        // Added by Me
+        if($order->checked == 0){
+            $order->checked =1;
+            $order->save();
         }
 
         //remaining delivery time
@@ -169,15 +182,19 @@ class OrderController extends Controller
     public function status(Request $request)
     {
         $order = Order::find($request->id);
-        if (($request->order_status == 'delivered' || $request->order_status == 'out_for_delivery') && $order['delivery_man_id'] == null && $order['order_type'] != 'take_away') {
-            Toastr::warning(translate('Please assign delivery man first!'));
-            return back();
-        }
-        if($request->order_status == 'completed' && $order->payment_status != 'paid') {
-            Toastr::warning(translate('Please update payment status first!'));
-            return back();
-        }
+        // if (($request->order_status == 'delivered' || $request->order_status == 'out_for_delivery') && $order['delivery_man_id'] == null && $order['order_type'] != 'take_away') {
+        //     Toastr::warning(translate('Please assign delivery man first!'));
+        //     return back();
+        // }
+        // if($request->order_status == 'completed' && $order->payment_status != 'paid') {
+        //     Toastr::warning(translate('Please update payment status first!'));
+        //     return back();
+        // }
         $order->order_status = $request->order_status;
+        if($order->checked == 0){
+            $order->checked =1;
+            // $order->save();
+        }
         $order->save();
 
         $fcm_token = null;
@@ -205,23 +222,23 @@ class OrderController extends Controller
         }
 
         //delivery man notification
-        if ($request->order_status == 'processing' && $order->delivery_man != null) {
-            $fcm_token = $order->delivery_man->fcm_token;
-            $value = translate('One of your order is in processing');
-            try {
-                if ($value) {
-                    $data = [
-                        'title' => translate('Order'),
-                        'description' => $value,
-                        'order_id' => $order['id'],
-                        'image' => '',
-                    ];
-                    Helpers::send_push_notif_to_device($fcm_token, $data);
-                }
-            } catch (\Exception $e) {
-                Toastr::warning(translate('Push notification failed for DeliveryMan!'));
-            }
-        }
+        // if ($request->order_status == 'processing' && $order->delivery_man != null) {
+        //     $fcm_token = $order->delivery_man->fcm_token;
+        //     $value = translate('One of your order is in processing');
+        //     try {
+        //         if ($value) {
+        //             $data = [
+        //                 'title' => translate('Order'),
+        //                 'description' => $value,
+        //                 'order_id' => $order['id'],
+        //                 'image' => '',
+        //             ];
+        //             Helpers::send_push_notif_to_device($fcm_token, $data);
+        //         }
+        //     } catch (\Exception $e) {
+        //         Toastr::warning(translate('Push notification failed for DeliveryMan!'));
+        //     }
+        // }
 
         //kitchen order notification
         if($request->order_status == 'confirmed') {
@@ -284,6 +301,9 @@ class OrderController extends Controller
         }
 
         Toastr::success(translate('Order status updated!'));
+        if($order->order_status == 'accepted'){
+            return Redirect::to("http://192.168.1.106:8000/admin/orders/generate-invoice/{$order->id}");
+        }
         return back();
     }
 

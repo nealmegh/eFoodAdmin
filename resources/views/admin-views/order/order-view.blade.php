@@ -198,7 +198,7 @@
                                 @php($drinks = json_decode($detail['drinks'],true))
                                 @php($dips = json_decode($detail['dips'],true))
 
-                                @php($items_price=0)
+                                @php($items_price=$detail['items_price'])
                                 @php($meal_items_price=0)
                                 @php($total_free = $product_details["item_ttl_free"])
 
@@ -354,9 +354,9 @@
                                                     <td class="text-center">
                                                         <label for="" class="control-label">{{translate('Free')}}</label>
                                                     </td>
-                                                    <td class="text-center">
+                                                    {{-- <td class="text-center">
                                                         <label for="" class="control-label">{{translate('To Pay')}}</label>
-                                                    </td>
+                                                    </td> --}}
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -365,7 +365,7 @@
                                                             <td class="text-center">{{$el["name"]}}</td>
                                                             <td class="text-center">{{$el["quantity"]}}</td>
                                                             <td class="text-center">{{$structure[$key]["item_freeAmount"]}}</td>
-                                                            @php($amount_to_pay = 0)
+                                                            {{-- @php($amount_to_pay = 0)
                                                             @if ($el["quantity"] > $structure[$key]["item_freeAmount"])
                                                                 @php($pay_qty=$el["quantity"] - $structure[$key]["item_freeAmount"])
                                                                 @php($exta_items_quantity+=$pay_qty)
@@ -376,10 +376,10 @@
                                                                 @endif
                                                             @endif
                                                             <td class="text-center">{{$amount_to_pay}}</td>
-                                                            @php($items_price += $amount_to_pay)
+                                                            @php($items_price += $amount_to_pay) --}}
                                                         </tr>
                                                 @endforeach
-                                                @php($extra_items_cost+=($items_price- $detail['discount_on_product']) * $detail['quantity'])
+                                                @php($extra_items_cost+=($items_price * $detail['quantity']))
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
@@ -536,10 +536,13 @@
                                         <option value="confirmed" {{$order['order_status'] == 'confirmed'? 'selected' : ''}}> {{translate('confirmed')}}</option>
                                         @if($order['order_type'] != 'dine_in')
                                             <option value="pending" {{$order['order_status'] == 'pending'? 'selected' : ''}}> {{translate('pending')}}</option>
-                                            <option value="processing" {{$order['order_status'] == 'processing'? 'selected' : ''}}> {{translate('processing')}}</option>
+                                            {{-- <option value="processing" {{$order['order_status'] == 'processing'? 'selected' : ''}}> {{translate('processing')}}</option>
                                             <option value="out_for_delivery" {{$order['order_status'] == 'out_for_delivery'? 'selected' : ''}}>{{translate('Out_For_Delivery')}} </option>
-                                            <option value="delivered" {{$order['order_status'] == 'delivered'? 'selected' : ''}}>{{translate('Delivered')}} </option><option value="returned" {{$order['order_status'] == 'returned'? 'selected' : ''}}> {{translate('Returned')}}</option>
-                                            <option value="failed" {{$order['order_status'] == 'failed'? 'selected' : ''}}>{{translate('Failed_to_Deliver')}} </option>
+                                            <option value="delivered" {{$order['order_status'] == 'delivered'? 'selected' : ''}}>{{translate('Delivered')}} </option>
+                                            <option value="returned" {{$order['order_status'] == 'returned'? 'selected' : ''}}> {{translate('Returned')}}</option>
+                                            <option value="failed" {{$order['order_status'] == 'failed'? 'selected' : ''}}>{{translate('Failed_to_Deliver')}} </option> --}}
+                                            <option value="accepted" {{$order['order_status'] == 'accepted'? 'selected' : ''}}> {{'Accepted'}}</option>
+                                            <option value="declined" {{$order['order_status'] == 'declined'? 'selected' : ''}}>{{'Declined'}} </option>
                                         @else
                                             <option value="cooking" {{$order['order_status'] == 'cooking'? 'selected' : ''}}> {{translate('cooking')}}</option>
                                             <option value="completed" {{$order['order_status'] == 'completed'? 'selected' : ''}}> {{translate('completed')}}</option>

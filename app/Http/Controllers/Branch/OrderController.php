@@ -53,38 +53,42 @@ class OrderController extends Controller
         }
 
         $order_count = [
-            'pending' =>    Order::notPos()->notSchedule()->where(['order_status'=>'pending','branch_id'=>auth('branch')->id()])
+            'pending' =>    Order::notPos()->notDineIn()->where(['order_status'=>'pending'])->notSchedule()
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'confirmed' =>  Order::notPos()->notSchedule()->where(['order_status'=>'confirmed','branch_id'=>auth('branch')->id()])
+            'accepted' =>  Order::notPos()->notDineIn()->where(['order_status'=>'accepted'])->notSchedule()
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'processing' => Order::notPos()->notSchedule()->where(['order_status'=>'processing','branch_id'=>auth('branch')->id()])
+            'declined' => Order::notPos()->notDineIn()->where(['order_status'=>'declined'])->notSchedule()
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'out_for_delivery' => Order::notPos()->notSchedule()->where(['order_status'=>'out_for_delivery','branch_id'=>auth('branch')->id()])
+            'completed' => Order::notPos()->notDineIn()->where(['order_status'=>'completed'])->notSchedule()
+            ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+                $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            })->count(),
+            // 'out_for_delivery' => Order::notPos()->notDineIn()->where(['order_status'=>'out_for_delivery'])->notSchedule()
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
+            // 'delivered' =>  Order::notPos()->notDineIn()->where(['order_status'=>'delivered'])
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
+            'canceled' =>   Order::notPos()->notDineIn()->where(['order_status'=>'canceled'])->notSchedule()
                 ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
                     $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
                 })->count(),
-            'delivered' =>  Order::notPos()->notSchedule()->where(['order_status'=>'delivered','branch_id'=>auth('branch')->id()])
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
-            'canceled' =>   Order::notPos()->notSchedule()->where(['order_status'=>'canceled','branch_id'=>auth('branch')->id()])
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
-            'returned' =>   Order::notPos()->notSchedule()->where(['order_status'=>'returned','branch_id'=>auth('branch')->id()])
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
-            'failed' =>     Order::notPos()->notSchedule()->where(['order_status'=>'failed','branch_id'=>auth('branch')->id()])
-                ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
-                    $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
-                })->count(),
+            // 'returned' =>   Order::notPos()->notDineIn()->where(['order_status'=>'returned'])->notSchedule()
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
+            // 'failed' =>     Order::notPos()->notDineIn()->where(['order_status'=>'failed'])->notSchedule()
+            //     ->when(!is_null($from) && !is_null($to), function ($query) use($from, $to) {
+            //         $query->whereBetween('created_at', [$from, Carbon::parse($to)->endOfDay()]);
+            //     })->count(),
         ];
 
         $orders = $orders->notPos()->notDineIn()->latest()->paginate(Helpers::getPagination())->appends($query_param);

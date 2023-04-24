@@ -2269,5 +2269,12 @@
   'To Pay' => 'To Pay',
   'Action' => 'Action',
   'Config Updated Successfully' => 'Config Updated Successfully',
-  'CAnnot have more than 12 excluysive items!' => 'CAnnot have more than 12 excluysive items!',
+  'Cannot have more than 12 excluysive items!' => 'Cannot have more than 12 excluysive items!',
+  'Payment' => 'Payment',
+  'Payment:  ' => 'Payment:  ',
+  'declined' => 'Declined',
+  'accepted' => 'Accepted',
+  '\'accept\'' => ' accept ',
+  'Variation : ${variation.type}' => 'Variation : ${variation.type}',
+  'Variation : ${el.type}' => 'Variation : ${el.type}',
 );

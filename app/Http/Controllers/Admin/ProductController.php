@@ -444,7 +444,8 @@ class ProductController extends Controller
         $product->variations = json_encode($variations);
         $product->price = $request->price;
         $product->set_menu = $request->item_type;
-        $product->product_type = $request->product_type;
+        // $product->product_type = $request->product_type;
+        $product->product_type = $request->has('product_type') ? $request->product_type:null;
         $product->image = $request->has('image') ? Helpers::update('product/', $product->image, 'png', $request->file('image')) : $product->image;
         $product->available_time_starts = $request->available_time_starts;
         $product->available_time_ends = $request->available_time_ends;

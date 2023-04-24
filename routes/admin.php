@@ -75,7 +75,8 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::post('customer-store', 'POSController@customer_store')->name('customer-store');
         });
 
-        Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['module:order_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        // Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['module:order_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['module:order_management']], function () {
             Route::get('list/{status}', 'TableOrderController@order_list')->name('list');
             Route::get('details/{id}', 'TableOrderController@order_details')->name('details');
             Route::get('running', 'TableOrderController@table_running_order')->name('running');
@@ -410,7 +411,8 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', 'KitchenController@status')->name('status');
         });
 
-        Route::group(['prefix' => 'table', 'as' => 'table.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        // Route::group(['prefix' => 'table', 'as' => 'table.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        Route::group(['prefix' => 'table', 'as' => 'table.', 'middleware' => ['module:table_management']], function () {
             Route::post('store', 'TableController@store')->name('store');
             Route::get('list', 'TableController@list')->name('list');
             Route::get('update/{id}', 'TableController@edit')->name('update');
@@ -421,7 +423,8 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::post('branch-table', 'TableController@getTableListByBranch')->name('branch-table');
         });
 
-        Route::group(['prefix' => 'promotion', 'as' => 'promotion.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        // Route::group(['prefix' => 'promotion', 'as' => 'promotion.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        Route::group(['prefix' => 'promotion', 'as' => 'promotion.', 'middleware' => ['module:table_management', ]], function () {
             Route::get('create', 'BranchPromotionController@create')->name('create');
             Route::post('store', 'BranchPromotionController@store')->name('store');
             Route::get('edit/{id}', 'BranchPromotionController@edit')->name('edit');

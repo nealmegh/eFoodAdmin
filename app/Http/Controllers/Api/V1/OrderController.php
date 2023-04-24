@@ -71,7 +71,8 @@ class OrderController extends Controller
                 'coupon_discount_amount' => Helpers::set_price($request->coupon_discount_amount),
                 'coupon_discount_title' => $request->coupon_discount_title == 0 ? null : 'coupon_discount_title',
                 'payment_status' => ($request->payment_method=='cash_on_delivery')?'unpaid':'paid',
-                'order_status' => ($request->payment_method=='cash_on_delivery')?'pending':'confirmed',
+                // 'order_status' => ($request->payment_method=='cash_on_delivery')?'pending':'confirmed',
+                'order_status' => 'pending',
                 'coupon_code' => $request['coupon_code'],
                 'payment_method' => $request->payment_method,
                 'transaction_reference' => $request->transaction_reference ?? null,
@@ -100,7 +101,7 @@ class OrderController extends Controller
             foreach ($request['cart'] as $c) {
                 //Added by Me:Change to match meal deal
                 $product = Product::find($c['product_id']);
-                Log::info($c);
+                // Log::info($c);
                 if (array_key_exists('variation', $c) && count(json_decode($product['variations'], true)) > 0) {
                     $price = Helpers::variation_price($product, json_encode($c['variation']),$c['is_meal']);
                 } else {
@@ -132,10 +133,11 @@ class OrderController extends Controller
                     'dips' => array_key_exists("dips",$c) ? json_encode($c["dips"]):null,
                     // 'items' => array_key_exists("items",$c) ? json_encode($c["items"]):null,
                     'items' => (array_key_exists("items",$c) && $c["items"][0]['quantity'] != -1) ? json_encode($c["items"]):null,
+                    'items_price' =>  Helpers::set_price($c['items_price']),
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
-                Log::info($or_d);
+                // Log::info($or_d);
                 $total_tax_amount += $or_d['tax_amount'] * $c['quantity'];
          
                 DB::table('order_details')->insert($or_d);

@@ -187,6 +187,7 @@
                                                             <span class="text-danger">*</span>
                                                         </label>
                                                         <select name="product_type" class="form-control js-select2-custom" required>
+                                                            <option {{$product['product_type']=='null'?'selected':''}} value="none">Customizable</option>
                                                             <option value="veg" {{$product['product_type']=='veg'?'selected':''}}>{{translate('veg')}}</option>
                                                             <option value="non_veg" {{$product['product_type']=='non_veg'?'selected':''}}>{{translate('nonveg')}}</option>
                                                         </select>
@@ -1319,6 +1320,10 @@
 
             if(formData.get("is_exclusive")*1 != 1){
                 formData.delete("is_exclusive");
+            }
+            
+            if(formData.get("product_type") == "none"){
+                formData.delete('product_type');
             }
             
 
