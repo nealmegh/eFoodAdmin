@@ -90,7 +90,7 @@ class Helpers
                     ]);
                 }
                 $item['variations'] = $variations;
-                // Added by Sopam
+                // Added by Me
                 foreach ((array) json_decode($item['sides'], true) as $var) {
                     array_push($sides, [
                         'Name' => $var['Name'],
@@ -167,9 +167,11 @@ class Helpers
             foreach (gettype($data['variations']) != 'array' ? json_decode($data['variations'], true) : $data['variations'] as $var) {
                 array_push($variations, [
                     'type' => $var['type'],
-                    'price' => (double)$var['price']
+                    'price' => (double)$var['price'],
+                    'var_meal_price' => (double)$var['var_meal_price']
                 ]);
             }
+            
             $data['variations'] = $variations;
             if (count($data['translations']) > 0) {
                 foreach ($data['translations'] as $translation) {

@@ -58,19 +58,19 @@
     <!-- End Footer -->
 
     <div class="modal fade" id="popup-modal">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12">
-                            <center>
+                            {{-- <center> --}}
                                 <h2>
                                     <i class="tio-shopping-cart-outlined"></i> {{ translate('You have new order, Check Please.') }}
                                 </h2>
                                 <button id='modal-check-order' class="btn btn-primary">
                                     Click To View Details
                                 </button>
-                                <table class="table table-bordered mt-3" id="modaldetails-table">
+                                {{-- <table class="table table-bordered mt-3" id="modaldetails-table">
                                     <thead>
                                         <tr>
                                             <th style="width: 10%">{{ translate('QTY') }}</th>
@@ -80,14 +80,15 @@
                                     </thead>
                                     <tbody>
                                     </tbody>
-                                </table>
+                                </table> --}}
+                                <div id='noti-print'></div>
                                 <hr>
                                 <div class="row">
                                     <button id='modal-accept' type="button" class="btn btn-outline-success col m-1">Accept</button>
                                     <button id='modal-decline' type="button" class="btn btn-outline-danger col m-1">Decline</button>
                                 </div>
                                 {{-- <button onclick="check_order()" class="btn btn-primary">{{ translate('Ok, let me check') }}</button> --}}
-                            </center>
+                            {{-- </center> --}}
                         </div>
                     </div>
                 </div>
@@ -96,6 +97,7 @@
     </div>
 
 </main>
+
 <!-- ========== END MAIN CONTENT ========== -->
 
 <!-- ========== END SECONDARY CONTENTS ========== -->
@@ -194,6 +196,17 @@
     })
 </script>
 <script>
+    function printRecipt(divName,id) {
+        var originalContents = document.body.innerHTML;
+        $('h5').css('font-size',"16pt");
+        $('table').css('font-size',"14pt");
+
+        var printContents = document.getElementById(divName).innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.href=`${window.location.origin}/admin/orders/status?id=${id}&order_status=accepted`;
+    }
     @if(Helpers::module_permission_check('order_management'))
         setInterval(function () {
             $.get({
@@ -208,7 +221,7 @@
                     if (data.new_order > 0) {
                         playAudio();
                         $("#modaldetails-table tbody tr").remove();   
-                        let sub_total = 0;
+                        /*let sub_total = 0;
                         let total_tax= 0;
                         let total_dis_on_pro = 0;
                         let add_ons_cost = 0; 
@@ -217,7 +230,7 @@
                         details.forEach((detail,ind)=>{
                             let product_details = JSON.parse(detail.product_details);
                             let structure = JSON.parse(product_details.structure); 
-                            let items = JSON.parse(detail.items);
+                            let items = detail.items !=null ? JSON.parse(detail.items): new Array();
                             let total_free= product_details.item_ttl_free;
                             let is_meal = JSON.parse(detail.is_meal);
                             let sides = JSON.parse(detail.sides);
@@ -314,7 +327,7 @@
                                                 })()}
 
                                                 <div class="font-size-sm text-body">
-                                                    <span>Side : </span>
+                                                    <span>Drink : </span>
                                                     <span class="font-weight-bold">
                                                         ${ drinks['Name'] }
                                                     </span>
@@ -326,7 +339,7 @@
                                                     return ``;  
                                                 })()}
                                                 <div class="font-size-sm text-body">
-                                                    <span>Side : </span>
+                                                    <span>Dip : </span>
                                                     <span class="font-weight-bold">
                                                         ${ dips['Name'] }
                                                     </span>
@@ -351,14 +364,22 @@
                             total_tax += (detail['tax_amount']*1) * (detail['quantity']*1)
                             $("#modaldetails-table tbody").append(tr);
 
-                        })
+                        })*/
+                        $("#noti-print").html(data.view);
                         $('#popup-modal').appendTo("body").modal('show');
+                        
+                        $("#modal-check-order").off("click");
+                        $("#modal-accept").off("click");
+                        $("#modal-decline").off("click");
+
+
                         $('#modal-check-order').click(()=>{
                             window.open(
                             `${window.location.origin}/admin/orders/details/${order.id}`, "_blank");
                         });
                         $('#modal-accept').click(()=>{
-                            location.href=`${window.location.origin}/admin/orders/status?id=${order.id}&order_status=accepted`
+                            //location.href=`${window.location.origin}/admin/orders/status?id=${order.id}&order_status=accepted`
+                            printRecipt('printableArea',order.id);
                         });
                         $('#modal-decline').click(()=>{
                             location.href=`${window.location.origin}/admin/orders/status?id=${order.id}&order_status=declined`

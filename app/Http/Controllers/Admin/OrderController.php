@@ -186,10 +186,10 @@ class OrderController extends Controller
         //     Toastr::warning(translate('Please assign delivery man first!'));
         //     return back();
         // }
-        // if($request->order_status == 'completed' && $order->payment_status != 'paid') {
-        //     Toastr::warning(translate('Please update payment status first!'));
-        //     return back();
-        // }
+        if($request->order_status == 'completed' && $order->payment_status != 'paid') {
+            Toastr::warning(translate('Please update payment status first!'));
+            return back();
+        }
         $order->order_status = $request->order_status;
         if($order->checked == 0){
             $order->checked =1;
@@ -301,9 +301,9 @@ class OrderController extends Controller
         }
 
         Toastr::success(translate('Order status updated!'));
-        if($order->order_status == 'accepted'){
-            return Redirect::to("http://192.168.1.106:8000/admin/orders/generate-invoice/{$order->id}");
-        }
+        // if($order->order_status == 'accepted'){
+        //     return Redirect::to("admin/orders/generate-invoice/{$order->id}");
+        // }
         return back();
     }
 

@@ -2277,4 +2277,5 @@
   '\'accept\'' => ' accept ',
   'Variation : ${variation.type}' => 'Variation : ${variation.type}',
   'Variation : ${el.type}' => 'Variation : ${el.type}',
+  'last_name_required' => 'Last name required',
 );

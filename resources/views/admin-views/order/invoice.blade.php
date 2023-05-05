@@ -352,8 +352,16 @@
 @push('script')
     <script>
         function printDiv(divName) {
-            var printContents = document.getElementById(divName).innerHTML;
+            /*var printContents = document.getElementById(divName).innerHTML;
             var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;*/
+            var originalContents = document.body.innerHTML;
+            $('h5').css('font-size',"16pt");
+            $('table').css('font-size',"14pt");
+
+            var printContents = document.getElementById(divName).innerHTML;
             document.body.innerHTML = printContents;
             window.print();
             document.body.innerHTML = originalContents;

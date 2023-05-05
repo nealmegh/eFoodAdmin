@@ -17,16 +17,25 @@ use Intervention\Image\Facades\Image;
 
 class SystemController extends Controller
 {
+    //Added by Me
+    public function renderRecipt($id)
+    {
+        // $id =  $request['id'];
+        $order = Order::where('id', $id)->first();
+        return response()->json([
+            'view' => view('layouts.admin.partials._recipt', compact('order'))->render()
+        ]);
+    }
     public function restaurant_data()
     {
-        $order =DB::table('orders')->where(['checked' => 0]);
-        $new_order = $order->count();
-        $ord = $order->first();
+        $order1 =DB::table('orders')->where(['checked' => 0]);
+        $new_order = $order1->count();
+        $ord = $order1->first();
         
-        $or = $ord != null ?Order::where('id', $ord->id)->first():'';
+        $order = $ord != null ?Order::where('id', $ord->id)->first():'';
         $addons=[];
-        if($or!=''){
-            foreach($or->details as $key => $item){
+        if($order!=''){
+            foreach($order->details as $key => $item){
                 $addids = json_decode($item['add_on_ids'],true);
                 $adds = [];
                 if(is_array($addids)){
@@ -40,7 +49,7 @@ class SystemController extends Controller
         }
         return response()->json([
             'success' => 1,
-            'data' => ['new_order' => $new_order,'order' => json_encode($or),'addons'=>json_encode($addons)]
+            'data' => ['new_order' => $new_order,'order' => json_encode($order),'addons'=>json_encode($addons),'view' =>$order!= null || $order!='' ? view('layouts.admin.partials._recipt', compact('order'))->render():null]
         ]);
     }
 

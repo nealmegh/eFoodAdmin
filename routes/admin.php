@@ -25,6 +25,10 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
         Route::post('settings', 'SystemController@settings_update');
         Route::post('settings-password', 'SystemController@settings_password_update')->name('settings-password');
         Route::get('/get-restaurant-data', 'SystemController@restaurant_data')->name('get-restaurant-data');
+        //Added by Me
+        Route::get('print/{id}', 'SystemController@renderRecipt')->name('print');
+
+
         Route::get('order-statistics', 'DashboardController@order_statistics')->name('order-statistics');
         Route::get('earning-statistics', 'DashboardController@earning_statistics')->name('earning-statistics');
 

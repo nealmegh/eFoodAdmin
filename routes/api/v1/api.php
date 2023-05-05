@@ -157,7 +157,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware' => 'localization'], function
     Route::get('pages', 'PageController@index');
 
     // Route::group(['prefix' => 'table', 'middleware' => 'app_activate:' . APPS['table_app']['software_id']], function () {
-    Route::group(['prefix' => 'table'], function () {
+    Route::group(['prefix' => 'table','middleware' => ['auth:api']], function () {
 
         Route::get('list', 'TableController@list');
         Route::get('product/type', 'TableController@filter_by_product_type');
