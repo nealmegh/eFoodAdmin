@@ -58,18 +58,37 @@
     <!-- End Footer -->
 
     <div class="modal fade" id="popup-modal">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12">
-                            <center>
-                                <h2 style="color: rgba(96,96,96,0.68)">
+                            {{-- <center> --}}
+                                <h2>
                                     <i class="tio-shopping-cart-outlined"></i> {{ translate('You have new order, Check Please.') }}
                                 </h2>
+                                <button id='modal-check-order' class="btn btn-primary">
+                                    Click To View Details
+                                </button>
+                                {{-- <table class="table table-bordered mt-3" id="modaldetails-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 10%">{{ translate('QTY') }}</th>
+                                            <th class="">{{ translate('DESC') }}</th>
+                                            <th style="text-align:right; padding-right:4px">{{ translate('Price') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table> --}}
+                                <div id='noti-print'></div>
                                 <hr>
-                                <button onclick="check_order()" class="btn btn-primary">{{ translate('Ok, let me check') }}</button>
-                            </center>
+                                <div class="row">
+                                    <button id='modal-accept' type="button" class="btn btn-outline-success col m-1">Accept</button>
+                                    <button id='modal-decline' type="button" class="btn btn-outline-danger col m-1">Decline</button>
+                                </div>
+                                {{-- <button onclick="check_order()" class="btn btn-primary">{{ translate('Ok, let me check') }}</button> --}}
+                            {{-- </center> --}}
                         </div>
                     </div>
                 </div>
@@ -78,6 +97,7 @@
     </div>
 
 </main>
+
 <!-- ========== END MAIN CONTENT ========== -->
 
 <!-- ========== END SECONDARY CONTENTS ========== -->
@@ -176,6 +196,17 @@
     })
 </script>
 <script>
+    function printRecipt(divName,id) {
+        var originalContents = document.body.innerHTML;
+        $('h5').css('font-size',"16pt");
+        $('table').css('font-size',"14pt");
+
+        var printContents = document.getElementById(divName).innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.href=`${window.location.origin}/admin/orders/status?id=${id}&order_status=accepted`;
+    }
     @if(Helpers::module_permission_check('order_management'))
         setInterval(function () {
             $.get({
@@ -183,9 +214,176 @@
                 dataType: 'json',
                 success: function (response) {
                     let data = response.data;
+                    let order = JSON.parse(data.order);
+                    console.log(order);
+                    let details = order.details;
+                    let addons = JSON.parse(data.addons);
                     if (data.new_order > 0) {
                         playAudio();
+                        $("#modaldetails-table tbody tr").remove();   
+                        /*let sub_total = 0;
+                        let total_tax= 0;
+                        let total_dis_on_pro = 0;
+                        let add_ons_cost = 0; 
+                        let extra_items_cost = 0;
+                        let total_meal_items_cost = 0;
+                        details.forEach((detail,ind)=>{
+                            let product_details = JSON.parse(detail.product_details);
+                            let structure = JSON.parse(product_details.structure); 
+                            let items = detail.items !=null ? JSON.parse(detail.items): new Array();
+                            let total_free= product_details.item_ttl_free;
+                            let is_meal = JSON.parse(detail.is_meal);
+                            let sides = JSON.parse(detail.sides);
+                            let drinks = JSON.parse(detail.drinks);
+                            let dips = JSON.parse(detail.dips);
+                            let meal_items_price = 0;
+                            let items_price = detail.items_price;
+                            let add_on_qtys = JSON.parse(detail.add_on_qtys);
+
+                            let variation = JSON.parse(detail.variation);
+
+                            let addon = addons[ind];
+
+                            
+                            let tr = `
+                                <tr>
+                                    <td class="">
+                                        ${detail.quantity}
+                                    </td>
+                                    <td class="">
+                                        ${is_meal == 1 ? `${product_details.name}(Meal Deal)`:product_details.name}<br>
+                                        
+                                        ${variation != null && variation.length > 0 ?
+                                            `
+                                            ${variation.map((el)=>{
+                                                return `
+                                                    <strong><u>{{ translate('Variation : ${el.type}') }}</u></strong>
+                                                    <div class="font-size-sm text-body" style="color: black!important;">
+                                                        <span>price : </span>
+                                                        <span
+                                                            class="font-weight-bold">${ is_meal == 1 ? el.var_meal_price : el.price }</span>
+                                                    </div>
+                                                `
+                                            }).join("")}`:``
+                                        }
+                                        ${addon.length > 0 ?
+                                            `<strong><u>{{ translate('Addons : ') }}</u></strong>
+                                            ${addon.map((el,ind)=>{
+                                                let add_on_qty = 0;
+                                                console.log(addon);
+                                                add_on_qtys != null ? add_on_qty = 1:add_on_qty=add_on_qtys[ind];
+                                                add_ons_cost += el['price'] * add_on_qty;
+                                                return `
+                                                    <div class="font-size-sm text-body">
+                                                        <span>${ el['name'] } : </span>
+                                                        <span class="font-weight-bold">
+                                                            ${ add_on_qty } x
+                                                            ${ el['price']}
+                                                        </span>
+                                                    </div>
+                                                ` 
+                                                }).join("")
+                                            }`:``
+                                        }
+                                        ${items.length > 0 ? 
+                                        `
+                                            ${total_free>0? `<strong><u>Items(Free: ${ total_free }) : </u></strong>`:`<strong><u>{{ translate('Items : ') }}</u></strong>`}
+                                            ${items.map((item,itind)=>{
+                                                return `
+                                                    <div class="font-size-sm text-body">
+                                                        <span>${ item['name'] }(Free:
+                                                            ${ structure[itind]['item_freeAmount'] }) : </span>
+                                                        <span class="font-weight-bold">
+                                                            ${ item['quantity'] }
+                                                        </span>
+                                                    </div>
+                                                `
+                                                }).join("")
+                                            }
+                                            <p>Items Price: ${items_price}</p>
+                                            ${(() => {
+                                                extra_items_cost += (items_price * detail['quantity'])
+                                                return ``;  
+                                            })()}
+                                        `:``}
+                                        ${is_meal == 1? `
+                                            <u><strong>Meal Deal</strong></u>
+                                            ${sides != null ? `
+                                                ${(() => {
+                                                  meal_items_price += sides['Price']*1;
+                                                    return ``;  
+                                                })()}
+                                                <div class="font-size-sm text-body">
+                                                    <span>Side : </span>
+                                                    <span class="font-weight-bold">
+                                                        ${ sides['Name'] }
+                                                    </span>
+                                                </div>
+                                            `:``}
+                                            ${drinks != null ? `
+                                                ${(() => {
+                                                  meal_items_price += drinks['Price']*1;
+                                                    return ``;  
+                                                })()}
+
+                                                <div class="font-size-sm text-body">
+                                                    <span>Drink : </span>
+                                                    <span class="font-weight-bold">
+                                                        ${ drinks['Name'] }
+                                                    </span>
+                                                </div>
+                                            `:``}
+                                            ${dips != null ? `
+                                                ${(() => {
+                                                  meal_items_price += dips['Price']*1;
+                                                    return ``;  
+                                                })()}
+                                                <div class="font-size-sm text-body">
+                                                    <span>Dip : </span>
+                                                    <span class="font-weight-bold">
+                                                        ${ dips['Name'] }
+                                                    </span>
+                                                </div>
+                                            `:``}
+                                            
+                                            ${(() => {
+                                                total_meal_items_cost += meal_items_price * detail['quantity']*1
+                                                return ``;  
+                                            })()}
+                                            <p>Meal Items Price: ${meal_items_price}</p>
+                                        `:``}
+                                        Discount : ${detail['discount_on_product']}
+                                    </td>
+
+                                    <td style="width: 28%;padding-right:4px; text-align:right">
+                                        ${ (detail['price']*1 - (detail['discount_on_product']*1)) * (detail['quantity']*1) }
+                                    </td>
+                                </tr>
+                            `  
+                            sub_total += (detail['price']*1 - (detail['discount_on_product']*1)) * (detail['quantity']*1)
+                            total_tax += (detail['tax_amount']*1) * (detail['quantity']*1)
+                            $("#modaldetails-table tbody").append(tr);
+
+                        })*/
+                        $("#noti-print").html(data.view);
                         $('#popup-modal').appendTo("body").modal('show');
+                        
+                        $("#modal-check-order").off("click");
+                        $("#modal-accept").off("click");
+                        $("#modal-decline").off("click");
+
+
+                        $('#modal-check-order').click(()=>{
+                            window.open(
+                            `${window.location.origin}/admin/orders/details/${order.id}`, "_blank");
+                        });
+                        $('#modal-accept').click(()=>{
+                            //location.href=`${window.location.origin}/admin/orders/status?id=${order.id}&order_status=accepted`
+                            printRecipt('printableArea',order.id);
+                        });
+                        $('#modal-decline').click(()=>{
+                            location.href=`${window.location.origin}/admin/orders/status?id=${order.id}&order_status=declined`
+                        });
                     }
                 },
             });

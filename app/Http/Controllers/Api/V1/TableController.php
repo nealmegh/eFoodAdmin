@@ -22,7 +22,8 @@ class TableController extends Controller
 {
     public function list()
     {
-        $tables = Table::where('is_active', 1)->paginate(Helpers::getPagination());
+        // $tables = Table::where('is_active', 1)->paginate(Helpers::getPagination());
+        $tables = Table::where('is_active', 1)->get();
         return response()->json($tables, 200);
     }
 
@@ -35,7 +36,7 @@ class TableController extends Controller
             'delivery_time' => 'required',
             'delivery_date' => 'required',
             'number_of_people' => 'required',
-            'payment_status' => 'required',
+            // 'payment_status' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -46,19 +47,21 @@ class TableController extends Controller
 
             $order = new Order();
             $order->id = 100000 + Order::all()->count() + 1;
-            $order->user_id = $request->id;
+            // $order->user_id = $request->id;
+            $order->user_id = $request->user()->id;
             $order->order_amount = Helpers::set_price($request['order_amount']);
             $order->coupon_discount_amount = Helpers::set_price($request->coupon_discount_amount);
             $order->coupon_discount_title = $request->coupon_discount_title == 0 ? null : 'coupon_discount_title';
             $order->payment_method = $request->payment_method;
-            $order->payment_status = $request->payment_status;
+            // $order->payment_status = $request->payment_status;
+            $order->payment_status = ($request->payment_method=='cash_on_delivery')?'unpaid':'paid';
             $order->order_status = 'confirmed';
             $order->coupon_code = $request['coupon_code'];
             $order->transaction_reference = $request->transaction_reference ?? null;
             $order->order_note = $request['order_note'];
             $order->order_type = 'dine_in';
             $order->branch_id = $request['branch_id'];
-            $order->checked = 1;
+            $order->checked = 0;
 
             $order->delivery_date = Carbon::now()->format('Y-m-d');
             $order->delivery_time = Carbon::now()->format('H:i:s');
@@ -100,11 +103,24 @@ class TableController extends Controller
             $order->save();
 
             foreach ($request['cart'] as $c) {
+                // $product = Product::find($c['product_id']);
+                // if (array_key_exists('variation', $c) && count(json_decode($product['variations'], true)) > 0) {
+                //     $price = Helpers::variation_price($product, json_encode($c['variation']));
+                // } else {
+                //     $price = Helpers::set_price($product['price']);
+                // }
+                //Added by Me:Change to match meal deal
+
                 $product = Product::find($c['product_id']);
+                // Log::info($c);
                 if (array_key_exists('variation', $c) && count(json_decode($product['variations'], true)) > 0) {
-                    $price = Helpers::variation_price($product, json_encode($c['variation']));
+                    $price = Helpers::variation_price($product, json_encode($c['variation']),$c['is_meal']);
                 } else {
-                    $price = Helpers::set_price($product['price']);
+                    if($c['is_meal'] == 1){
+                        $price = Helpers::set_price($product['meal_price']);
+                    }else{
+                        $price = Helpers::set_price($product['price']);
+                    }
                 }
 
                 $order_d = [
@@ -117,9 +133,17 @@ class TableController extends Controller
                     'discount_on_product' => Helpers::discount_calculate($product, $price),
                     'discount_type' => 'discount_on_product',
                     'variant' => json_encode($c['variant']),
-                    'variation' => array_key_exists('variation', $c) ? json_encode($c['variation']) : json_encode([]),
+                    // 'variation' => array_key_exists('variation', $c) ? json_encode($c['variation']) : json_encode([]),
+                    'variation' => (array_key_exists('variation', $c) && $c["variation"][0]['price'] != null) ? json_encode($c['variation']) : null,
                     'add_on_ids' => json_encode($c['add_on_ids']),
                     'add_on_qtys' => json_encode($c['add_on_qtys']),
+                    //Added by Me
+                    'is_meal' => array_key_exists("is_meal",$c) ? $c["is_meal"]:0,
+                    'sides' => array_key_exists("sides",$c) ? json_encode($c["sides"]):null,
+                    'drinks' => array_key_exists("drinks",$c) ? json_encode($c["drinks"]):null,
+                    'dips' => array_key_exists("dips",$c) ? json_encode($c["dips"]):null,
+                    'items' => (array_key_exists("items",$c) && $c["items"][0]['quantity'] != -1) ? json_encode($c["items"]):null,
+                    'items_price' =>  Helpers::set_price($c['items_price']),
                     'created_at' => now(),
                     'updated_at' => now()
                 ];

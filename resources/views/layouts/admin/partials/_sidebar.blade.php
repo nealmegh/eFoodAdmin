@@ -385,24 +385,6 @@
                                                 class="text-truncate">{{translate('Product_Addon')}}</span>
                                         </a>
                                     </li>
-                                    {{-- TODO:Impement it:Link,Method,Handler)(Added by SP) --}}
-                                     <li class="nav-item {{Request::is('admin/addon*')?'active':''}}">
-                                        <a class="nav-link " href="{{route('admin.addon.add-new')}}"
-                                           title="{{translate('add sides')}}">
-                                            <span class="tio-circle nav-indicator-icon"></span>
-                                            <span
-                                                class="text-truncate">{{translate('Sides')}}</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item {{Request::is('admin/addon*')?'active':''}}">
-                                        <a class="nav-link " href="{{route('admin.addon.add-new')}}"
-                                           title="{{translate('add drinks')}}">
-                                            <span class="tio-circle nav-indicator-icon"></span>
-                                            <span
-                                                class="text-truncate">{{translate('Drinks')}}</span>
-                                        </a>
-                                    </li>
-                                    {{-- SP Add End --}}
                                     <li class="nav-item {{Request::is('admin/product/list') || Request::is('admin/product/edit*') ?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.product.list')}}" title="{{translate('product_list')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>

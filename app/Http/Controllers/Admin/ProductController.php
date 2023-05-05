@@ -13,9 +13,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Intervention\Image\Facades\Image;
 use Rap2hpoutre\FastExcel\FastExcel;
 
@@ -50,6 +52,24 @@ class ProductController extends Controller
             'view' => view('admin-views.product.partials._variant-combinations', compact('combinations', 'price', 'product_name'))->render(),
         ]);
     }
+
+    // public function add_items(Request $request)
+    // {
+    //     $items_arr = json_decode(urldecode(html_entity_decode($request->getContent())), true);
+
+    //     return response()->json([
+    //         'view' => view('admin-views.product.partials._items-tables', compact('items_arr'))->render(),
+    //     ]);
+    // }
+
+    // public function add_sides_or_drinks(Request $request)
+    // {
+    //     $arr = json_decode(urldecode(html_entity_decode($request->getContent())), true);
+
+    //     return response()->json([
+    //         'view' => view('admin-views.product.partials._side_or_drink-table', compact('arr'))->render(),
+    //     ]);
+    // }
 
     public function get_categories(Request $request)
     {
@@ -121,9 +141,11 @@ class ProductController extends Controller
             'category_id' => 'required',
             'image' => 'required',
             'price' => 'required|numeric',
-            'product_type' => 'required|in:veg,non_veg',
+            // 'product_type' => 'required|in:veg,non_veg',
+            'meal_price' => Rule::requiredIf($request->has("has_meal_deal")),
         ], [
             'name.required' => translate('Product name is required!'),
+            'meal_price.required' => translate('Cannot set a meal deal without a price'),
             'name.unique' => translate('Product name has been taken.'),
             'category_id.required' => translate('category  is required!'),
         ]);
@@ -138,10 +160,12 @@ class ProductController extends Controller
             $validator->getMessageBag()->add('unit_price', translate('Discount can not be more or equal to the price!'));
         }
 
+        
         if ($request['price'] <= $dis || $validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)]);
         }
 
+        
         $img_names = [];
         if (!empty($request->file('images'))) {
             foreach ($request->images as $img) {
@@ -210,14 +234,17 @@ class ProductController extends Controller
                 $str = '';
                 foreach ($combination as $k => $item) {
                     if ($k > 0) {
-                        $str .= '-' . str_replace(' ', '', $item);
+                        $str .= '-' . str_replace('', '', $item);
                     } else {
-                        $str .= str_replace(' ', '', $item);
+                        $str .= str_replace('', '', $item);
                     }
                 }
                 $item = [];
                 $item['type'] = $str;
-                $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
+                Log::info($request);
+                $price = $request['price_' . str_replace(' ', '_', $str)];
+                $item['price'] = abs($price);
+                $item['var_meal_price'] = $request->has('has_meal_deal') ? abs($request['meal_price_' . str_replace(' ', '_', $str)]):0;
                 array_push($variations, $item);
             }
         }
@@ -225,7 +252,7 @@ class ProductController extends Controller
         $product->variations = json_encode($variations);
         $product->price = $request->price;
         $product->set_menu = $request->item_type;
-        $product->product_type = $request->product_type;
+        $product->product_type = $request->has('product_type') ? $request->product_type:null;
         $product->image = Helpers::upload('product/', 'png', $request->file('image'));
         $product->available_time_starts = $request->available_time_starts;
         $product->available_time_ends = $request->available_time_ends;
@@ -239,6 +266,23 @@ class ProductController extends Controller
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->add_ons = $request->has('addon_ids') ? json_encode($request->addon_ids) : json_encode([]);
         $product->status = $request->status == 'on' ? 1 : 0;
+        //Added by Me Sopan
+        $product->structure = $request->has('structure') ? $request->structure:null;
+        $product->meal_price  = $request->has('meal_price') && $request->has('has_meal_deal') ? $request->meal_price:null;
+        $product->sides  = $request->has('sides') ? $request->sides:null;
+        $product->drinks  = $request->has('drinks') ? $request->drinks:null;
+        $product->dips  = $request->has('dips') ? $request->dips:null;
+        $product->item_ttl_free = $request->has('item_ttl_free') ? $request->item_ttl_free:0;
+        
+        $product->is_exclusive = $request->has('is_exclusive') ? $request->is_exclusive:0;
+        if($product->is_exclusive == 1){
+            $exclusives = Product::where('is_exclusive',1)->count();
+            if($exclusives >= 12){
+                $validator->getMessageBag()->add('name', translate('Cannot have more than 12 exclusive items!'));
+                return response()->json(['errors' => Helpers::error_processor($validator)]);
+            } 
+        }
+        //Added by Me Sopan end
 
         $product->save();
 
@@ -348,7 +392,12 @@ class ProductController extends Controller
                 }
                 $item['name'] = 'choice_' . $no;
                 $item['title'] = $request->choice[$key];
-                $item['options'] = explode(',', implode('|', preg_replace('/\s+/', ' ', $request[$str])));
+                $opts = explode(',', implode('|', preg_replace('/\s+/', ' ', $request[$str])));
+                foreach ($opts as $key => $opt) {
+                    $opts[$key] = preg_replace('/^[ \t]+/','',$opt);
+                    // Log::info($opts[$key]);
+                  } 
+                $item['options'] = $opts;
                 array_push($choice_options, $item);
             }
         }
@@ -359,24 +408,35 @@ class ProductController extends Controller
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_' . $no;
                 $my_str = implode('|', $request[$name]);
-                array_push($options, explode(',', $my_str));
+                // Added by Me
+                $my_choices = explode(',', $my_str);
+                foreach ($my_choices as $key => $ch) {
+                    $my_choices[$key] = preg_replace('/^[ \t]+/','',$ch);
+                    // Log::info($my_choices[$key]);
+                  } 
+                array_push($options, $my_choices);
             }
         }
         //Generates the combinations of customer choice options
         $combinations = Helpers::combinations($options);
+        // Log::info($options);
         if (count($combinations[0]) > 0) {
             foreach ($combinations as $key => $combination) {
                 $str = '';
                 foreach ($combination as $k => $item) {
                     if ($k > 0) {
-                        $str .= '-' . str_replace(' ', '', $item);
+                        $str .= '-' . str_replace('', '', $item);
                     } else {
-                        $str .= str_replace(' ', '', $item);
+                        $str .= str_replace('', '', $item);
                     }
                 }
                 $item = [];
                 $item['type'] = $str;
-                $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
+                Log::info($request);
+                $price = $request['price_' . str_replace(' ', '_', $str)];
+                $item['price'] = abs($price);
+                $item['var_meal_price'] = $request->has('has_meal_deal') ? abs($request['meal_price_' . str_replace(' ', '_', $str)]):0;
+                Log::info($item);
                 array_push($variations, $item);
             }
         }
@@ -384,7 +444,8 @@ class ProductController extends Controller
         $product->variations = json_encode($variations);
         $product->price = $request->price;
         $product->set_menu = $request->item_type;
-        $product->product_type = $request->product_type;
+        // $product->product_type = $request->product_type;
+        $product->product_type = $request->has('product_type') ? $request->product_type:null;
         $product->image = $request->has('image') ? Helpers::update('product/', $product->image, 'png', $request->file('image')) : $product->image;
         $product->available_time_starts = $request->available_time_starts;
         $product->available_time_ends = $request->available_time_ends;
@@ -398,7 +459,26 @@ class ProductController extends Controller
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->add_ons = $request->has('addon_ids') ? json_encode($request->addon_ids) : json_encode([]);
         $product->status = $request->status == 'on' ? 1 : 0;
+        
 
+         //Added by Me Sopan
+         $product->structure = $request->has('structure') ? $request->structure:null;
+         $product->meal_price  = $request->has('meal_price') && $request->has('has_meal_deal') ? $request->meal_price:null;
+         $product->sides  = $request->has('sides') ? $request->sides:null;
+         $product->drinks  = $request->has('drinks') ? $request->drinks:null;
+         $product->dips  = $request->has('dips') ? $request->dips:null;
+         $product->item_ttl_free = $request->has('item_ttl_free') ? $request->item_ttl_free:0;
+         $product->is_exclusive = $request->has('is_exclusive') ? $request->is_exclusive:0;
+         $product->is_exclusive = $request->has('is_exclusive') ? $request->is_exclusive:0;
+         if($product->is_exclusive == 1){
+             $exclusives = Product::where('is_exclusive',1)->count();
+             if($exclusives >= 12){
+                 $validator->getMessageBag()->add('name', translate('Cannot have more than 12 exclusive items!'));
+                 return response()->json(['errors' => Helpers::error_processor($validator)]);
+             } 
+         }
+         //Added by Me Sopan end
+         
         $product->save();
 
         foreach ($request->lang as $index => $key) {

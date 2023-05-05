@@ -16,8 +16,10 @@ use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use function App\CentralLogics\translate;
 
 class OrderController extends Controller
@@ -44,7 +46,7 @@ class OrderController extends Controller
             'branch_id' => 'required',
             'delivery_time' => 'required',
             'delivery_date' => 'required',
-            'distance' => 'required',
+            'distance' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -69,7 +71,8 @@ class OrderController extends Controller
                 'coupon_discount_amount' => Helpers::set_price($request->coupon_discount_amount),
                 'coupon_discount_title' => $request->coupon_discount_title == 0 ? null : 'coupon_discount_title',
                 'payment_status' => ($request->payment_method=='cash_on_delivery')?'unpaid':'paid',
-                'order_status' => ($request->payment_method=='cash_on_delivery')?'pending':'confirmed',
+                // 'order_status' => ($request->payment_method=='cash_on_delivery')?'pending':'confirmed',
+                'order_status' => 'pending',
                 'coupon_code' => $request['coupon_code'],
                 'payment_method' => $request->payment_method,
                 'transaction_reference' => $request->transaction_reference ?? null,
@@ -96,12 +99,19 @@ class OrderController extends Controller
             $total_tax_amount = 0 ;
 
             foreach ($request['cart'] as $c) {
+                //Added by Me:Change to match meal deal
                 $product = Product::find($c['product_id']);
+                // Log::info($c);
                 if (array_key_exists('variation', $c) && count(json_decode($product['variations'], true)) > 0) {
-                    $price = Helpers::variation_price($product, json_encode($c['variation']));
+                    $price = Helpers::variation_price($product, json_encode($c['variation']),$c['is_meal']);
                 } else {
-                    $price = Helpers::set_price($product['price']);
+                    if($c['is_meal'] == 1){
+                        $price = Helpers::set_price($product['meal_price']);
+                    }else{
+                        $price = Helpers::set_price($product['price']);
+                    }
                 }
+                
                 $or_d = [
                     'order_id' => $order_id,
                     'product_id' => $c['product_id'],
@@ -112,14 +122,24 @@ class OrderController extends Controller
                     'discount_on_product' => Helpers::discount_calculate($product, $price),
                     'discount_type' => 'discount_on_product',
                     'variant' => json_encode($c['variant']),
-                    'variation' => array_key_exists('variation', $c) ? json_encode($c['variation']) : json_encode([]),
+                    // 'variation' => array_key_exists('variation', $c) ? json_encode($c['variation']) : json_encode([]),
+                    'variation' => (array_key_exists('variation', $c) && $c["variation"][0]['price'] != null) ? json_encode($c['variation']) : null,
                     'add_on_ids' => json_encode($c['add_on_ids']),
                     'add_on_qtys' => json_encode($c['add_on_qtys']),
+                    //Added by Me
+                    'is_meal' => array_key_exists("is_meal",$c) ? $c["is_meal"]:0,
+                    'sides' => array_key_exists("sides",$c) ? json_encode($c["sides"]):null,
+                    'drinks' => array_key_exists("drinks",$c) ? json_encode($c["drinks"]):null,
+                    'dips' => array_key_exists("dips",$c) ? json_encode($c["dips"]):null,
+                    // 'items' => array_key_exists("items",$c) ? json_encode($c["items"]):null,
+                    'items' => (array_key_exists("items",$c) && $c["items"][0]['quantity'] != -1) ? json_encode($c["items"]):null,
+                    'items_price' =>  Helpers::set_price($c['items_price']),
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
-
+                // Log::info($or_d);
                 $total_tax_amount += $or_d['tax_amount'] * $c['quantity'];
+         
                 DB::table('order_details')->insert($or_d);
 
                 //update product popularity point
@@ -176,6 +196,7 @@ class OrderController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
+            Log::info($e);
             return response()->json([$e], 403);
         }
     }

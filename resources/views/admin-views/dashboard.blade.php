@@ -114,7 +114,8 @@
                                     <div id="dognut-pie"></div>
                                     <!-- Total Orders -->
                                     <div class="total--orders">
-                                        <h3>{{$donut['pending'] + $donut['ongoing'] + $donut['delivered']+ $donut['canceled']+ $donut['returned']+ $donut['failed']}} </h3>
+                                        {{-- <h3>{{$donut['pending'] + $donut['ongoing'] + $donut['delivered']+ $donut['canceled']+ $donut['returned']+ $donut['failed']}} </h3> --}}
+                                        <h3>{{$donut['pending'] + $donut['accepted'] + $donut['declined']+ $donut['canceled']}} </h3>
                                         <span>{{ translate('orders') }}</span>
                                     </div>
                                     <!-- Total Orders -->
@@ -123,21 +124,27 @@
                                     <div class="before-bg-pending">
                                         <span>{{ translate('pending') }} ({{$donut['pending']}})</span>
                                     </div>
-                                    <div class="before-bg-ongoing">
+                                    {{-- <div class="before-bg-ongoing">
                                         <span>{{ translate('ongoing') }} ({{$donut['ongoing']}})</span>
+                                    </div> --}}
+                                    <div class="before-bg-ongoing">
+                                        <span>{{ translate('accepted') }} ({{$donut['accepted']}})</span>
                                     </div>
-                                    <div class="before-bg-delivered">
+                                    {{-- <div class="before-bg-delivered">
                                         <span>{{ translate('delivered') }} ({{$donut['delivered']}})</span>
-                                    </div>
+                                    </div> --}}
                                     <div class="before-bg-17202A">
                                         <span>{{ translate('canceled') }} ({{$donut['canceled']}})</span>
                                     </div>
-                                    <div class="before-bg-21618C">
+                                    {{-- <div class="before-bg-21618C">
                                         <span>{{ translate('returned') }} ({{$donut['returned']}})</span>
+                                    </div> --}}
+                                    <div class="before-bg-17202A">
+                                        <span>{{ translate('declined') }} ({{$donut['declined']}})</span>
                                     </div>
-                                    <div class="before-bg-27AE60">
+                                    {{-- <div class="before-bg-27AE60">
                                         <span>{{ translate('failed_to_deliver') }} ({{$donut['failed']}})</span>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -345,12 +352,14 @@
             <!-- Dognut Pie Chart -->
             <script>
                 var options = {
-                    series: [{{$donut['ongoing']}}, {{$donut['delivered']}}, {{$donut['pending']}}, {{$donut['canceled']}}, {{$donut['returned']}}, {{$donut['failed']}}],
+                    {{-- series: [{{$donut['ongoing']}}, {{$donut['delivered']}}, {{$donut['pending']}}, {{$donut['canceled']}}, {{$donut['returned']}}, {{$donut['failed']}}], --}}
+                    series: [{{$donut['accepted']}}, {{$donut['declined']}}, {{$donut['pending']}}, {{$donut['canceled']}}],
                     chart: {
                         width: 256,
                         type: 'donut',
                     },
-                    labels: ['{{ translate('ongoing') }}', '{{ translate('delivered') }}', '{{ translate('pending') }}', '{{translate('canceled')}}', '{{translate('returned')}}', '{{translate('failed_to_deliver')}}'],
+                    {{-- labels: ['{{ translate('ongoing') }}', '{{ translate('delivered') }}', '{{ translate('pending') }}', '{{translate('canceled')}}', '{{translate('returned')}}', '{{translate('failed_to_deliver')}}'], --}}
+                    labels: ['Accepted', 'Declined', 'Pending', 'Canceled'],
                     dataLabels: {
                         enabled: false,
                         style: {

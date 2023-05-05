@@ -25,6 +25,10 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
         Route::post('settings', 'SystemController@settings_update');
         Route::post('settings-password', 'SystemController@settings_password_update')->name('settings-password');
         Route::get('/get-restaurant-data', 'SystemController@restaurant_data')->name('get-restaurant-data');
+        //Added by Me
+        Route::get('print/{id}', 'SystemController@renderRecipt')->name('print');
+
+
         Route::get('order-statistics', 'DashboardController@order_statistics')->name('order-statistics');
         Route::get('earning-statistics', 'DashboardController@earning_statistics')->name('earning-statistics');
 
@@ -75,7 +79,8 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::post('customer-store', 'POSController@customer_store')->name('customer-store');
         });
 
-        Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['module:order_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        // Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['module:order_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['module:order_management']], function () {
             Route::get('list/{status}', 'TableOrderController@order_list')->name('list');
             Route::get('details/{id}', 'TableOrderController@order_details')->name('details');
             Route::get('running', 'TableOrderController@table_running_order')->name('running');
@@ -152,6 +157,10 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
         Route::group(['prefix' => 'product', 'as' => 'product.', 'middleware' => ['module:product_management']], function () {
             Route::get('add-new', 'ProductController@index')->name('add-new');
             Route::post('variant-combination', 'ProductController@variant_combination')->name('variant-combination');
+            // Added by Sopan
+            Route::post('add-items', 'ProductController@add_items')->name('add-items');
+            Route::post('add-sides-or-drinks', 'ProductController@add_sides_or_drinks')->name('add-sides-or-drinks');
+            //Added by Sopan end
             Route::post('store', 'ProductController@store')->name('store');
             Route::get('edit/{id}', 'ProductController@edit')->name('edit');
             Route::post('update/{id}', 'ProductController@update')->name('update');
@@ -406,7 +415,8 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', 'KitchenController@status')->name('status');
         });
 
-        Route::group(['prefix' => 'table', 'as' => 'table.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        // Route::group(['prefix' => 'table', 'as' => 'table.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        Route::group(['prefix' => 'table', 'as' => 'table.', 'middleware' => ['module:table_management']], function () {
             Route::post('store', 'TableController@store')->name('store');
             Route::get('list', 'TableController@list')->name('list');
             Route::get('update/{id}', 'TableController@edit')->name('update');
@@ -417,7 +427,8 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::post('branch-table', 'TableController@getTableListByBranch')->name('branch-table');
         });
 
-        Route::group(['prefix' => 'promotion', 'as' => 'promotion.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        // Route::group(['prefix' => 'promotion', 'as' => 'promotion.', 'middleware' => ['module:table_management', 'app_activate:' . APPS['table_app']['software_id']]], function () {
+        Route::group(['prefix' => 'promotion', 'as' => 'promotion.', 'middleware' => ['module:table_management', ]], function () {
             Route::get('create', 'BranchPromotionController@create')->name('create');
             Route::post('store', 'BranchPromotionController@store')->name('store');
             Route::get('edit/{id}', 'BranchPromotionController@edit')->name('edit');

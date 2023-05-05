@@ -1,0 +1,18 @@
+/resources/views/admin-views/product/index *done*
+/resources/views/admin-views/product/edit *done*
+/resources/views/admin-views/order 
+added /resources/views/admin-views/partials/_edit_combination.blade.oho  *done*
+added /resources/views/admin-views/partials/_sides_or_drinks-tables.blade.oho *done*
+
+/appp/http/Controllers/Admin/ProductController *done*
+
+/routes/admin.php *done*
+/routes/api.php *done*
+
+added migration 
+
+
+/appp/http/Controllers/Api/v1/ProductController *done*
+/appp/http/Controllers/Api/v1/Ordercontroller 
+
+/app/CentralLogics/helpers.php  *done*

@@ -81,7 +81,7 @@
                             </a>
                         </div>
 
-                        <div class="col-sm-6 col-lg-3">
+                        {{-- <div class="col-sm-6 col-lg-3">
                             <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'confirmed'])}}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -93,9 +93,37 @@
                             </span>
                                 </div>
                             </a>
+                        </div> --}}
+
+                        <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'confirmed'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/confirmed.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{'Accepted'}}</span>
+                                    </h6>
+                                    <span class="card-title text-107980">
+                                {{$order_count['accepted']}}
+                            </span>
+                                </div>
+                            </a>
                         </div>
 
                         <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'failed'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/failed_to_deliver.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{'Declined'}}</span>
+                                    </h6>
+                                    <span class="card-title text-danger">
+                                {{$order_count['declined']}}
+                            </span>
+                                </div>
+                            </a>
+                        </div>
+
+                        {{-- <div class="col-sm-6 col-lg-3">
                             <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'processing'])}}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -107,9 +135,9 @@
                             </span>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
 
-                        <div class="col-sm-6 col-lg-3">
+                        {{-- <div class="col-sm-6 col-lg-3">
                             <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'out_for_delivery'])}}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -121,9 +149,9 @@
                             </span>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
 
-                        <div class="col-sm-6 col-lg-3">
+                        {{-- <div class="col-sm-6 col-lg-3">
                             <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'delivered'])}}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -135,7 +163,7 @@
                             </span>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
 
                         <!-- Static Cancel -->
                         <div class="col-sm-6 col-lg-3">
@@ -153,7 +181,7 @@
                         </div>
                         <!-- Static Cancel -->
 
-                        <div class="col-sm-6 col-lg-3">
+                        {{-- <div class="col-sm-6 col-lg-3">
                             <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'returned'])}}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -165,8 +193,8 @@
                             </span>
                                 </div>
                             </a>
-                        </div>
-                        <div class="col-sm-6 col-lg-3">
+                        </div> --}}
+                        {{-- <div class="col-sm-6 col-lg-3">
                             <a class="order--card h-100" href="{{route('admin.orders.list', ['status' => 'failed'])}}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -178,7 +206,7 @@
                             </span>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             @endif

@@ -67,6 +67,8 @@ Route::group(['namespace' => 'Api\V1', 'middleware' => 'localization'], function
     Route::group(['prefix' => 'products'], function () {
         Route::get('latest', 'ProductController@get_latest_products');
         Route::get('popular', 'ProductController@get_popular_products');
+        //Added by Me
+        Route::get('exclusive', 'ProductController@get_exclusive_products');
         Route::get('set-menu', 'ProductController@get_set_menus');
         Route::get('search', 'ProductController@get_searched_products');
         Route::get('details/{id}', 'ProductController@get_product');
@@ -154,7 +156,9 @@ Route::group(['namespace' => 'Api\V1', 'middleware' => 'localization'], function
 
     Route::get('pages', 'PageController@index');
 
-    Route::group(['prefix' => 'table', 'middleware' => 'app_activate:' . APPS['table_app']['software_id']], function () {
+    // Route::group(['prefix' => 'table', 'middleware' => 'app_activate:' . APPS['table_app']['software_id']], function () {
+    Route::group(['prefix' => 'table','middleware' => ['auth:api']], function () {
+
         Route::get('list', 'TableController@list');
         Route::get('product/type', 'TableController@filter_by_product_type');
         Route::get('promotional/page', 'TableController@get_promotional_page');

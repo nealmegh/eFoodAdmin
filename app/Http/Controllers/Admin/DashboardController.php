@@ -16,6 +16,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -80,7 +81,8 @@ class DashboardController extends Controller
 
         $earning = [];
         $earning_data = Order::where([
-            'order_status' => 'delivered',
+            // 'order_status' => 'delivered',
+            'order_status' => 'accepted',
         ])->select(
             DB::raw('IFNULL(sum(order_amount),0) as sums'),
             DB::raw('YEAR(created_at) year, MONTH(created_at) month')
@@ -118,14 +120,14 @@ class DashboardController extends Controller
         $donut = [];
         $donut_data = Order::all();
         $donut['pending'] = $donut_data->where('order_status', 'pending')->count();
-        $donut['ongoing'] = $donut_data->whereIn('order_status', ['confirmed', 'processing', 'out_for_delivery'])->count();
-        $donut['delivered'] = $donut_data->where('order_status', 'delivered')->count();
+        // $donut['ongoing'] = $donut_data->whereIn('order_status', ['confirmed', 'processing', 'out_for_delivery'])->count();
+        $donut['accepted'] = $donut_data->where('order_status', 'accepted')->count();
         $donut['canceled'] = $donut_data->where('order_status', 'canceled')->count();
-        $donut['returned'] = $donut_data->where('order_status', 'returned')->count();
-        $donut['failed'] = $donut_data->where('order_status', 'failed')->count();
+        $donut['declined'] = $donut_data->where('order_status', 'declined')->count();
+        // $donut['failed'] = $donut_data->where('order_status', 'failed')->count();
 
 //        $data['donut'] = $order_statistics_donut;
-
+        
 
         $data['recent_orders'] = Order::latest()
             ->take(5)
@@ -136,6 +138,7 @@ class DashboardController extends Controller
 
     public function order_stats(Request $request)
     {
+
         session()->put('statistics_type', $request['statistics_type']);
         $data = self::order_stats_data();
 
@@ -156,62 +159,16 @@ class DashboardController extends Controller
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $confirmed = Order::where(['order_status' => 'confirmed'])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $processing = Order::where(['order_status' => 'processing'])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $out_for_delivery = Order::where(['order_status' => 'out_for_delivery'])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $canceled = Order::where(['order_status' => 'canceled'])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $delivered = Order::where(['order_status' => 'delivered'])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $all = Order::when($today, function ($query) {
-            return $query->whereDate('created_at', Carbon::today());
-        })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $returned = Order::where(['order_status' => 'returned'])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $failed = Order::where(['order_status' => 'failed'])
+        // $confirmed = Order::where(['order_status' => 'confirmed'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        //Added by Me
+        $accepted = Order::where(['order_status' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -220,16 +177,89 @@ class DashboardController extends Controller
             })
             ->count();
 
+        // $processing = Order::where(['order_status' => 'processing'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+
+        $declined = Order::where(['order_status' => 'declined'])
+            ->when($today, function ($query) {
+                return $query->whereDate('created_at', Carbon::today());
+            })
+            ->when($this_month, function ($query) {
+                return $query->whereMonth('created_at', Carbon::now());
+            })
+            ->count();
+
+        // $out_for_delivery = Order::where(['order_status' => 'out_for_delivery'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        $canceled = Order::where(['order_status' => 'canceled'])
+            ->when($today, function ($query) {
+                return $query->whereDate('created_at', Carbon::today());
+            })
+            ->when($this_month, function ($query) {
+                return $query->whereMonth('created_at', Carbon::now());
+            })
+            ->count();
+        // $delivered = Order::where(['order_status' => 'delivered'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        $all = Order::when($today, function ($query) {
+            return $query->whereDate('created_at', Carbon::today());
+        })
+            ->when($this_month, function ($query) {
+                return $query->whereMonth('created_at', Carbon::now());
+            })
+            ->count();
+        // $returned = Order::where(['order_status' => 'returned'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        // $failed = Order::where(['order_status' => 'failed'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+
+        // $data = [
+        //     'pending' => $pending,
+        //     'confirmed' => $confirmed,
+        //     'processing' => $processing,
+        //     'out_for_delivery' => $out_for_delivery,
+        //     'canceled' => $canceled,
+        //     'delivered' => $delivered,
+        //     'all' => $all,
+        //     'returned' => $returned,
+        //     'failed' => $failed
+        // ];
         $data = [
             'pending' => $pending,
-            'confirmed' => $confirmed,
-            'processing' => $processing,
-            'out_for_delivery' => $out_for_delivery,
+            'accepted' => $accepted,
+            'declined' => $declined,
             'canceled' => $canceled,
-            'delivered' => $delivered,
             'all' => $all,
-            'returned' => $returned,
-            'failed' => $failed
         ];
 
         return $data;
