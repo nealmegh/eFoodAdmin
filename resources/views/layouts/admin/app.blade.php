@@ -177,6 +177,7 @@
     function pauseAudio() {
         audio.pause();
     }
+    //Added by Me
 
     //File Upload
     $(window).on('load', function() {
@@ -193,9 +194,13 @@
             reader.readAsDataURL(this.files[0]);
         }
         });
+
+       
     })
 </script>
 <script>
+    var modalshown = false;
+    
     function printRecipt(divName,id) {
         var originalContents = document.body.innerHTML;
         $('h5').css('font-size',"16pt");
@@ -204,7 +209,7 @@
         var printContents = document.getElementById(divName).innerHTML;
         document.body.innerHTML = printContents;
         window.print();
-        document.body.innerHTML = originalContents;
+        //document.body.innerHTML = originalContents;
         location.href=`${window.location.origin}/admin/orders/status?id=${id}&order_status=accepted`;
     }
     @if(Helpers::module_permission_check('order_management'))
@@ -220,7 +225,7 @@
                     let addons = JSON.parse(data.addons);
                     if (data.new_order > 0) {
                         playAudio();
-                        $("#modaldetails-table tbody tr").remove();   
+                        //$("#modaldetails-table tbody tr").remove();   
                         /*let sub_total = 0;
                         let total_tax= 0;
                         let total_dis_on_pro = 0;
@@ -366,8 +371,14 @@
 
                         })*/
                         $("#noti-print").html(data.view);
-                        $('#popup-modal').appendTo("body").modal('show');
-                        
+                        if(!modalshown){
+                            modalshown = true;
+                            $('#popup-modal').appendTo("body").modal('show');
+                        }
+                         $( '#popup-modal' ).on( 'hidden.bs.modal', function () {
+                            modalshown = false;
+                            $( '#popup-modal' ).off( 'hidden.bs.modal');
+                        } );
                         $("#modal-check-order").off("click");
                         $("#modal-accept").off("click");
                         $("#modal-decline").off("click");
