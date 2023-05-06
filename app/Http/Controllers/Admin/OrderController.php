@@ -223,7 +223,7 @@ class OrderController extends Controller
         }
         //Email to user
         $emailServices = Helpers::get_business_settings('mail_config');
-        $user=DB::table("users")->where('id', $order->user_id)->get();
+        $user=DB::table("users")->where('id', $order->user_id)->first();
         if (isset($emailServices['status']) && $emailServices['status'] == 1) {
             Mail::to($user->email)->send(new \App\Mail\OrderStatus($order->id,$request->order_status));
         }

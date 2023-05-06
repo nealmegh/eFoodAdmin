@@ -106,7 +106,7 @@
     <div class="card-header">
         {{translate('Your Order is ' . $status . ".")}}
         {{translate('Order ID :') . $order_id}}
-        {{translate('We will contact you soon.')}}
+        {{$status != "declined" ? translate('We will contact you soon.'):""}}
     </div>
 </div>
 
