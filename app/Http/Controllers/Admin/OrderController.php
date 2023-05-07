@@ -14,6 +14,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Rap2hpoutre\FastExcel\FastExcel;
 use function App\CentralLogics\translate;
@@ -220,7 +221,12 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             Toastr::warning(translate('Push notification send failed for Customer!'));
         }
-
+        //Email to user
+        $emailServices = Helpers::get_business_settings('mail_config');
+        $user=DB::table("users")->where('id', $order->user_id)->first();
+        if (isset($emailServices['status']) && $emailServices['status'] == 1) {
+            Mail::to($user->email)->send(new \App\Mail\OrderStatus($order->id,$request->order_status));
+        }
         //delivery man notification
         // if ($request->order_status == 'processing' && $order->delivery_man != null) {
         //     $fcm_token = $order->delivery_man->fcm_token;

@@ -230,9 +230,9 @@
                                                 {{-- @php($items_price += $amount_to_pay) --}}
                                             @endforeach
                                         @endif
-                                        @if (count((is_countable($items)?$items:[])) > 0)              
+                                        {{-- @if (count((is_countable($items)?$items:[])) > 0)              
                                             <p>Items Price: {{ \App\CentralLogics\Helpers::set_symbol($items_price) }}</p>
-                                        @endif
+                                        @endif --}}
 
                                         @if ($is_meal == 1)
                                             <u><strong>Meal Deal</strong></u>
@@ -293,43 +293,43 @@
                         <dl class="row text-right" style="color: black!important;">
                             <dt class="col-6">{{ translate('Items Price:') }}</dt>
                             <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($sub_total) }}</dd>
-                            <dt class="col-6">{{ translate('Tax / VAT:') }}</dt>
-                            <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($total_tax) }}</dd>
+                            {{-- <dt class="col-6">{{ translate('Tax / VAT:') }}</dt>
+                            <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($total_tax) }}</dd> --}}
                             <dt class="col-6">{{ translate('Addon Cost:') }}</dt>
                             <dd class="col-6">
                                 {{ \App\CentralLogics\Helpers::set_symbol($add_ons_cost) }}
                                 <hr>
                             </dd>
 
-                            <dt class="col-6">Extra Items Cost:</dt>
-                            <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($exta_items_cost) }}</dd>
+                            {{-- <dt class="col-6">Extra Items Cost:</dt>
+                            <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($exta_items_cost) }}</dd> --}}
                             
-                            <dt class="col-6">Meal Items Cost</dt>
-                            <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($total_meal_items_cost) }}</dd>
+                            {{-- <dt class="col-6">Meal Items Cost</dt>
+                            <dd class="col-6">{{ \App\CentralLogics\Helpers::set_symbol($total_meal_items_cost) }}</dd> --}}
 
-                            <dt class="col-6">{{ translate('Subtotal:') }}</dt>
+                            {{-- <dt class="col-6">{{ translate('Subtotal:') }}</dt>
                             <dd class="col-6">
                                 {{ \App\CentralLogics\Helpers::set_symbol($sub_total + $total_tax + $add_ons_cost + $exta_items_cost+$total_meal_items_cost) }}
-                            </dd>
-                            <dt class="col-6">{{ translate('Extra Discount') }}:</dt>
+                            </dd> --}}
+                            {{-- <dt class="col-6">{{ translate('Extra Discount') }}:</dt>
                             <dd class="col-6">
                                 - {{ \App\CentralLogics\Helpers::set_symbol($order['extra_discount']) }}</dd>
                             <dt class="col-6">{{ translate('Coupon Discount:') }}</dt>
                             <dd class="col-6">
                                 - {{ \App\CentralLogics\Helpers::set_symbol($order['coupon_discount_amount']) }}</dd>
-                            <dt class="col-6">{{ translate('Delivery Fee:') }}</dt>
-                            <dd class="col-6">
+                            <dt class="col-6">{{ translate('Delivery Fee:') }}</dt> --}}
                                 @if ($order['order_type'] == 'take_away')
                                     @php($del_c = 0)
                                 @else
                                     @php($del_c = $order['delivery_charge'])
                                 @endif
+                            {{-- <dd class="col-6">
                                 {{ \App\CentralLogics\Helpers::set_symbol($del_c) }}
                                 <hr>
-                            </dd>
+                            </dd> --}}
 
                             <dt class="col-6" style="font-size: 20px">{{ translate('Total:') }}</dt>
-                            <dd class="col-6" style="font-size: 20px">
+                            <dd class="col-6 font-weight-bold" style="font-size: 20px">
                                 {{ \App\CentralLogics\Helpers::set_symbol($sub_total + $del_c + $total_tax + $add_ons_cost + $exta_items_cost+$total_meal_items_cost - $order['coupon_discount_amount'] - $order['extra_discount']) }}
                             </dd>
                         </dl>

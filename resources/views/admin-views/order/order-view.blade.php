@@ -533,7 +533,7 @@
                                 <div class="">
                                     <label class="font-weight-bold text-dark fz-14">{{translate('Change_Order_Status')}}</label>
                                     <select name="order_status" onchange="route_alert('{{route('admin.orders.status',['id'=>$order['id']])}}'+'&order_status='+ this.value,'{{\App\CentralLogics\translate("Change the order status to ") }}'+  this.value)" class="status custom-select">
-                                        <option value="confirmed" {{$order['order_status'] == 'confirmed'? 'selected' : ''}}> {{translate('confirmed')}}</option>
+                                        {{-- <option value="confirmed" {{$order['order_status'] == 'confirmed'? 'selected' : ''}}> {{translate('confirmed')}}</option> --}}
                                         @if($order['order_type'] != 'dine_in')
                                             <option value="pending" {{$order['order_status'] == 'pending'? 'selected' : ''}}> {{translate('pending')}}</option>
                                             {{-- <option value="processing" {{$order['order_status'] == 'processing'? 'selected' : ''}}> {{translate('processing')}}</option>
