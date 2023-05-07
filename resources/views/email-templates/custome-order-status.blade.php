@@ -104,9 +104,20 @@
 <!-- end preheader -->
 <div class="card">
     <div class="card-header">
-        {{translate('Your Order is ' . $status . ".")}}
-        {{translate('Order ID :') . $order_id}}
-        {{$status != "declined" ? translate('We will contact you soon.'):""}}
+        {{'You Order ID: '.$order_id.' has been ' . $status . "."}}
+        <br>
+        <br>
+
+        {{ "Please contact with shop directly if you have any allergen concern or any other food enquiries." }}
+        <br>
+        <br>
+
+        {{ "If applicable any refund will take place up to 3 working days to the bank card used for respective order." }}
+        <br>
+        <br>
+        {{ "Thank you for your order with us!" }}
+        <br>
+        {{ "Original Fried Chicken" }}
     </div>
 </div>
 
