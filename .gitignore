@@ -11,3 +11,5 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .DS_Store
+/app/Providers/RouteServiceProvider.php
+/app/Providers/RouteServiceProvider.txt
