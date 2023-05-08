@@ -6,14 +6,22 @@
         <img width="30" src="{{asset('public/assets/admin/img/icons/pending.png')}}" class="dashboard--card__img" alt="">
     </a>
 </div>
+{{-- @php(Illuminate\Support\Facades\Log::info($data)) --}}
 <div class="col-sm-6 col-lg-3">
-    <a href="{{route('branch.orders.list',['confirmed'])}}" class="dashboard--card">
-        <h5 class="dashboard--card__subtitle">{{translate('confirmed')}}</h5>
-        <h2 class="dashboard--card__title">{{$data['confirmed']}}</h2>
+    <a href="{{route('branch.orders.list',['accepted'])}}" class="dashboard--card">
+        <h5 class="dashboard--card__subtitle">{{'Accepted'}}</h5>
+        <h2 class="dashboard--card__title">{{$data['accepted']}}</h2>
         <img width="30" src="{{asset('public/assets/admin/img/icons/confirmed.png')}}" class="dashboard--card__img" alt="">
     </a>
 </div>
 <div class="col-sm-6 col-lg-3">
+    <a href="{{route('branch.orders.list',['declined'])}}" class="dashboard--card">
+        <h5 class="dashboard--card__subtitle">{{translate('declined')}}</h5>
+        <h2 class="dashboard--card__title">{{$data['declined']}}</h2>
+        <img width="30" src="{{asset('public/assets/admin/img/icons/failed_to_deliver.png')}}" class="dashboard--card__img" alt="">
+    </a>
+</div> 
+{{-- <div class="col-sm-6 col-lg-3">
     <a href="{{route('branch.orders.list',['processing'])}}" class="dashboard--card">
         <h5 class="dashboard--card__subtitle">{{translate('processing')}}</h5>
         <h2 class="dashboard--card__title">{{$data['processing']}}</h2>
@@ -26,10 +34,9 @@
         <h2 class="dashboard--card__title">{{$data['out_for_delivery']}}</h2>
         <img width="30" src="{{asset('public/assets/admin/img/icons/out_for_delivery.png')}}" class="dashboard--card__img" alt="">
     </a>
-</div>
+</div> --}}
 
-
-<div class="col-sm-6 col-lg-3">
+{{-- <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_pending" href="{{route('branch.orders.list',['delivered'])}}">
         <div class="order-stats__content">
@@ -41,7 +48,7 @@
         </span>
     </a>
     <!-- End Card -->
-</div>
+</div> --}}
 <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_canceled" href="{{route('branch.orders.list',['canceled'])}}">
@@ -50,12 +57,12 @@
             <h6 class="order-stats__subtitle">{{translate('canceled')}}</h6>
         </div>
         <span class="order-stats__title">
-            {{$data['all']}}
+            {{$data['canceled']}}
         </span>
     </a>
     <!-- End Card -->
 </div>
-<div class="col-sm-6 col-lg-3">
+{{-- <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_returned" href="{{route('branch.orders.list',['returned'])}}">
         <div class="order-stats__content">
@@ -67,12 +74,13 @@
         </span>
     </a>
     <!-- End Card -->
-</div>
-<div class="col-sm-6 col-lg-3">
+</div> --}}
+{{-- <div class="col-sm-6 col-lg-3">
     <!-- Card -->
     <a class="order-stats order-stats_failed" href="{{route('branch.orders.list',['failed'])}}">
         <div class="order-stats__content">
             <img width="20" src="{{asset('public/assets/admin/img/icons/failed_to_deliver.png')}}" class="order-stats__img" alt="">
+            <!-- <h6 class="order-stats__subtitle">{{__('messages.failed')}}</h6> -->
             <h6 class="order-stats__subtitle">{{translate('failed_to_deliver')}}</h6>
         </div>
         <span class="order-stats__title">
@@ -80,4 +88,4 @@
         </span>
     </a>
     <!-- End Card -->
-</div>
+</div> --}}
