@@ -93,7 +93,7 @@
                                     class="font-weight-normal">{{ $order['order_type'] }}</span>
                             </h5>
                             @php($address = \App\Model\CustomerAddress::find($order['delivery_address_id']))
-                            <h5>
+                            <h5 id="printaddr">
                                 {{ translate('Address : ') }}<span
                                     class="font-weight-normal">{{ isset($address) ? $address['address'] : '' }}</span>
                             </h5>
@@ -270,7 +270,7 @@
                                             <p>Meal Items Price: {{ \App\CentralLogics\Helpers::set_symbol($meal_items_price) }}</p>
                                         @endif
 
-                                        {{ translate('Discount : ') }}{{ \App\CentralLogics\Helpers::set_symbol($detail['discount_on_product']) }}
+                                        {{-- {{ translate('Discount : ') }}{{ \App\CentralLogics\Helpers::set_symbol($detail['discount_on_product']) }} --}}
                                     </td>
 
 
@@ -360,7 +360,7 @@
             var originalContents = document.body.innerHTML;
             $('h5').css('font-size',"16pt");
             $('table').css('font-size',"14pt");
-
+            $('#printaddr').css('font-size',"13pt");
             var printContents = document.getElementById(divName).innerHTML;
             document.body.innerHTML = printContents;
             window.print();

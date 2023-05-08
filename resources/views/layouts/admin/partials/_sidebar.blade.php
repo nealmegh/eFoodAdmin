@@ -129,7 +129,7 @@
                                             </span>
                                         </a>
                                     </li>
-                                    <li class="nav-item {{Request::is('admin/orders/list/confirmed')?'active':''}}">
+                                    {{-- <li class="nav-item {{Request::is('admin/orders/list/confirmed')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['confirmed'])}}" title="">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate sidebar--badge-container">
@@ -139,8 +139,30 @@
                                                 </span>
                                             </span>
                                         </a>
+                                    </li> --}}
+                                    <li class="nav-item {{Request::is('admin/orders/list/accepted')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['accepted'])}}" title="">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                {{"Accepted"}}
+                                                    <span class="badge badge-soft-success badge-pill ml-1">
+                                                    {{\App\Model\Order::notPos()->notDineIn()->where(['order_status'=>'accepted'])->notSchedule()->count()}}
+                                                </span>
+                                            </span>
+                                        </a>
                                     </li>
-                                    <li class="nav-item {{Request::is('admin/orders/list/processing')?'active':''}}">
+                                    <li class="nav-item {{Request::is('admin/orders/list/declined')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['declined'])}}" title="">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                {{"Declined"}}
+                                                    <span class="badge badge-soft-success badge-pill ml-1">
+                                                    {{\App\Model\Order::notPos()->notDineIn()->where(['order_status'=>'declined'])->notSchedule()->count()}}
+                                                </span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                    {{-- <li class="nav-item {{Request::is('admin/orders/list/processing')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['processing'])}}" title="">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate sidebar--badge-container">
@@ -150,8 +172,8 @@
                                                 </span>
                                             </span>
                                         </a>
-                                    </li>
-                                    <li class="nav-item {{Request::is('admin/orders/list/out_for_delivery')?'active':''}}">
+                                    </li> --}}
+                                    {{-- <li class="nav-item {{Request::is('admin/orders/list/out_for_delivery')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['out_for_delivery'])}}"
                                            title="">
                                             <span class="tio-circle nav-indicator-icon"></span>
@@ -162,8 +184,8 @@
                                                 </span>
                                             </span>
                                         </a>
-                                    </li>
-                                    <li class="nav-item {{Request::is('admin/orders/list/delivered')?'active':''}}">
+                                    </li> --}}
+                                    {{-- <li class="nav-item {{Request::is('admin/orders/list/delivered')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['delivered'])}}" title="">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate sidebar--badge-container">
@@ -173,8 +195,8 @@
                                                 </span>
                                             </span>
                                         </a>
-                                    </li>
-                                    <li class="nav-item {{Request::is('admin/orders/list/returned')?'active':''}}">
+                                    </li> --}}
+                                    {{-- <li class="nav-item {{Request::is('admin/orders/list/returned')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['returned'])}}" title="">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate sidebar--badge-container">
@@ -184,8 +206,8 @@
                                                 </span>
                                             </span>
                                         </a>
-                                    </li>
-                                    <li class="nav-item {{Request::is('admin/orders/list/failed')?'active':''}}">
+                                    </li> --}}
+                                    {{-- <li class="nav-item {{Request::is('admin/orders/list/failed')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['failed'])}}" title="">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate sidebar--badge-container">
@@ -195,7 +217,7 @@
                                                 </span>
                                             </span>
                                         </a>
-                                    </li>
+                                    </li> --}}
 
                                     <li class="nav-item {{Request::is('admin/orders/list/canceled')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['canceled'])}}" title="">

@@ -128,76 +128,121 @@ class DashboardController extends Controller
         ], 200);
     }
 
+    // public function order_stats_data() {
+    //     $today = session()->has('statistics_type') && session('statistics_type') == 'today' ? 1 : 0;
+    //     $this_month = session()->has('statistics_type') && session('statistics_type') == 'this_month' ? 1 : 0;
+
+    //     $pending = Order::where(['order_status'=>'pending','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+    //     $confirmed = Order::where(['order_status'=>'confirmed','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+    //     $processing = Order::where(['order_status'=>'processing','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+    //     $out_for_delivery = Order::where(['order_status'=>'out_for_delivery','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+
+    //     $delivered = Order::where(['order_status'=>'delivered','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+    //     $canceled = Order::where(['order_status'=>'canceled','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+    //     $all = Order::where(['branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+    //     $returned = Order::where(['order_status'=>'returned','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+    //     $failed = Order::where(['order_status'=>'failed','branch_id'=>auth('branch')->id()])
+    //         ->when($today, function ($query) {
+    //             return $query->whereDate('created_at', Carbon::today());
+    //         })
+    //         ->when($this_month, function ($query) {
+    //             return $query->whereMonth('created_at', Carbon::now());
+    //         })
+    //         ->count();
+
+
+    //     $data = [
+    //         'pending' => $pending,
+    //         'confirmed' => $confirmed,
+    //         'processing' => $processing,
+    //         'out_for_delivery' => $out_for_delivery,
+    //         'delivered' => $delivered,
+    //         'all' => $all,
+    //         'returned' => $returned,
+    //         'failed' => $failed
+    //     ];
+
+    //     return $data;
+    // }
+
     public function order_stats_data() {
         $today = session()->has('statistics_type') && session('statistics_type') == 'today' ? 1 : 0;
         $this_month = session()->has('statistics_type') && session('statistics_type') == 'this_month' ? 1 : 0;
 
-        $pending = Order::where(['order_status'=>'pending','branch_id'=>auth('branch')->id()])
+        $pending = Order::where(['order_status' => 'pending'])->notSchedule()
             ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
+                return $query->whereDate('created_at', \Carbon\Carbon::today());
             })
             ->when($this_month, function ($query) {
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $confirmed = Order::where(['order_status'=>'confirmed','branch_id'=>auth('branch')->id()])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $processing = Order::where(['order_status'=>'processing','branch_id'=>auth('branch')->id()])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $out_for_delivery = Order::where(['order_status'=>'out_for_delivery','branch_id'=>auth('branch')->id()])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-
-        $delivered = Order::where(['order_status'=>'delivered','branch_id'=>auth('branch')->id()])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $canceled = Order::where(['order_status'=>'canceled','branch_id'=>auth('branch')->id()])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $all = Order::where(['branch_id'=>auth('branch')->id()])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $returned = Order::where(['order_status'=>'returned','branch_id'=>auth('branch')->id()])
-            ->when($today, function ($query) {
-                return $query->whereDate('created_at', Carbon::today());
-            })
-            ->when($this_month, function ($query) {
-                return $query->whereMonth('created_at', Carbon::now());
-            })
-            ->count();
-        $failed = Order::where(['order_status'=>'failed','branch_id'=>auth('branch')->id()])
+        // $confirmed = Order::where(['order_status' => 'confirmed'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        //Added by Me
+        $accepted = Order::where(['order_status' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -206,16 +251,89 @@ class DashboardController extends Controller
             })
             ->count();
 
+        // $processing = Order::where(['order_status' => 'processing'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
 
+        $declined = Order::where(['order_status' => 'declined'])
+            ->when($today, function ($query) {
+                return $query->whereDate('created_at', Carbon::today());
+            })
+            ->when($this_month, function ($query) {
+                return $query->whereMonth('created_at', Carbon::now());
+            })
+            ->count();
+
+        // $out_for_delivery = Order::where(['order_status' => 'out_for_delivery'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        $canceled = Order::where(['order_status' => 'canceled'])
+            ->when($today, function ($query) {
+                return $query->whereDate('created_at', Carbon::today());
+            })
+            ->when($this_month, function ($query) {
+                return $query->whereMonth('created_at', Carbon::now());
+            })
+            ->count();
+        // $delivered = Order::where(['order_status' => 'delivered'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        $all = Order::when($today, function ($query) {
+            return $query->whereDate('created_at', Carbon::today());
+        })
+            ->when($this_month, function ($query) {
+                return $query->whereMonth('created_at', Carbon::now());
+            })
+            ->count();
+        // $returned = Order::where(['order_status' => 'returned'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+        // $failed = Order::where(['order_status' => 'failed'])
+        //     ->when($today, function ($query) {
+        //         return $query->whereDate('created_at', Carbon::today());
+        //     })
+        //     ->when($this_month, function ($query) {
+        //         return $query->whereMonth('created_at', Carbon::now());
+        //     })
+        //     ->count();
+
+        // $data = [
+        //     'pending' => $pending,
+        //     'confirmed' => $confirmed,
+        //     'processing' => $processing,
+        //     'out_for_delivery' => $out_for_delivery,
+        //     'canceled' => $canceled,
+        //     'delivered' => $delivered,
+        //     'all' => $all,
+        //     'returned' => $returned,
+        //     'failed' => $failed
+        // ];
         $data = [
             'pending' => $pending,
-            'confirmed' => $confirmed,
-            'processing' => $processing,
-            'out_for_delivery' => $out_for_delivery,
-            'delivered' => $delivered,
+            'accepted' => $accepted,
+            'declined' => $declined,
+            'canceled' => $canceled,
             'all' => $all,
-            'returned' => $returned,
-            'failed' => $failed
         ];
 
         return $data;

@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Branch;
 use App\CentralLogics\Helpers;
 use App\Http\Controllers\Controller;
 use App\Model\Order;
+use App\Model\TableOrder;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Rap2hpoutre\FastExcel\FastExcel;
 use function App\CentralLogics\translate;
 
@@ -113,11 +115,23 @@ class OrderController extends Controller
 
     public function details($id)
     {
-        $order = Order::with('details')->where(['id' => $id, 'branch_id' => auth('branch')->id()])->first();
+        $order = Order::with(['details', 'customer', 'delivery_address', 'branch', 'delivery_man'])
+            ->where(['id' => $id])
+            ->first();
 
+//        dd ($order->branch);
+        
+        
         if(!isset($order)) {
             Toastr::info(translate('No more orders!'));
             return back();
+        }
+        
+
+        // Added by Me
+        if($order->checked == 0){
+            $order->checked =1;
+            $order->save();
         }
 
         //remaining delivery time
@@ -125,27 +139,95 @@ class OrderController extends Controller
         $ordered_time = Carbon::createFromFormat('Y-m-d H:i:s', date("Y-m-d H:i:s", strtotime($delivery_date_time)));
         $remaining_time = $ordered_time->add($order['preparation_time'], 'minute')->format('Y-m-d H:i:s');
         $order['remaining_time'] = $remaining_time;
+        
+        // Log::info($order);
+
 
         return view('branch-views.order.order-view', compact('order'));
     }
 
+    // public function status(Request $request)
+    // {
+    //     $order = Order::where(['id' => $request->id, 'branch_id' => auth('branch')->id()])->first();
+    //     if (($request->order_status == 'delivered' || $request->order_status == 'out_for_delivery') && $order['delivery_man_id'] == null && $order['order_type'] != 'take_away') {
+    //         Toastr::warning(translate('Please assign delivery man first!'));
+    //         return back();
+    //     }
+    //     $order->order_status = $request->order_status;
+    //     if($request->order_status == 'delivered') {
+    //         $order->payment_status = 'paid';
+    //     }
+    //     $order->save();
+
+    //     $fcm_token=null;
+    //     if($order->customer) {
+    //         $fcm_token = $order->customer->cm_firebase_token;
+    //     }
+    //     $value = Helpers::order_status_update_message($request->order_status);
+    //     try {
+    //         if ($value) {
+    //             $data = [
+    //                 'title' => translate('Order'),
+    //                 'description' => $value,
+    //                 'order_id' => $order['id'],
+    //                 'image' => '',
+    //                 'type'=>'order_status',
+    //             ];
+    //             if(isset($fcm_token)) {
+    //                 Helpers::send_push_notif_to_device($fcm_token, $data);
+    //             }
+    //         }
+    //     } catch (\Exception $e) {
+    //         Toastr::warning(translate('Push notification failed for Customer!'));
+    //     }
+
+    //     //delivery man notification
+    //     if ($request->ordeurrent_pager_status == 'processing' && $order->delivery_man != null) {
+    //         $fcm_token = $order->delivery_man->fcm_token;
+    //         $value = translate('One of your order is in processing');
+    //         try {
+    //             if ($value) {
+    //                 $data = [
+    //                     'title' => translate('Order'),
+    //                     'description' => $value,
+    //                     'order_id' => $order['id'],
+    //                     'image' => '',
+    //                     'type'=>'order_status',
+    //                 ];
+    //                 Helpers::send_push_notif_to_device($fcm_token, $data);
+    //             }
+    //         } catch (\Exception $e) {
+    //             Toastr::warning(translate('Push notification failed for DeliveryMan!'));
+    //         }
+    //     }
+
+    //     Toastr::success(translate('Order status updated!'));
+    //     return back();
+    // }
+
     public function status(Request $request)
     {
-        $order = Order::where(['id' => $request->id, 'branch_id' => auth('branch')->id()])->first();
-        if (($request->order_status == 'delivered' || $request->order_status == 'out_for_delivery') && $order['delivery_man_id'] == null && $order['order_type'] != 'take_away') {
-            Toastr::warning(translate('Please assign delivery man first!'));
+        $order = Order::find($request->id);
+        // if (($request->order_status == 'delivered' || $request->order_status == 'out_for_delivery') && $order['delivery_man_id'] == null && $order['order_type'] != 'take_away') {
+        //     Toastr::warning(translate('Please assign delivery man first!'));
+        //     return back();
+        // }
+        if($request->order_status == 'completed' && $order->payment_status != 'paid') {
+            Toastr::warning(translate('Please update payment status first!'));
             return back();
         }
         $order->order_status = $request->order_status;
-        if($request->order_status == 'delivered') {
-            $order->payment_status = 'paid';
+        if($order->checked == 0){
+            $order->checked =1;
+            // $order->save();
         }
         $order->save();
 
-        $fcm_token=null;
-        if($order->customer) {
+        $fcm_token = null;
+        if(isset($order->customer)) {
             $fcm_token = $order->customer->cm_firebase_token;
         }
+
         $value = Helpers::order_status_update_message($request->order_status);
         try {
             if ($value) {
@@ -159,32 +241,100 @@ class OrderController extends Controller
                 if(isset($fcm_token)) {
                     Helpers::send_push_notif_to_device($fcm_token, $data);
                 }
+
             }
         } catch (\Exception $e) {
-            Toastr::warning(translate('Push notification failed for Customer!'));
+            Toastr::warning(translate('Push notification send failed for Customer!'));
+        }
+        //Email to user
+        $emailServices = Helpers::get_business_settings('mail_config');
+        $user=DB::table("users")->where('id', $order->user_id)->first();
+        if (isset($emailServices['status']) && $emailServices['status'] == 1) {
+            Mail::to($user->email)->send(new \App\Mail\OrderStatus($order->id,$request->order_status));
+        }
+        //delivery man notification
+        // if ($request->order_status == 'processing' && $order->delivery_man != null) {
+        //     $fcm_token = $order->delivery_man->fcm_token;
+        //     $value = translate('One of your order is in processing');
+        //     try {
+        //         if ($value) {
+        //             $data = [
+        //                 'title' => translate('Order'),
+        //                 'description' => $value,
+        //                 'order_id' => $order['id'],
+        //                 'image' => '',
+        //             ];
+        //             Helpers::send_push_notif_to_device($fcm_token, $data);
+        //         }
+        //     } catch (\Exception $e) {
+        //         Toastr::warning(translate('Push notification failed for DeliveryMan!'));
+        //     }
+        // }
+
+        //kitchen order notification
+        if($request->order_status == 'confirmed') {
+            $data = [
+                'title' => translate('You have a new order - (Order Confirmed).'),
+                'description' => $order->id,
+                'order_id' => $order->id,
+                'image' => '',
+            ];
+
+            try {
+                Helpers::send_push_notif_to_topic($data, "kitchen-{$order->branch_id}",'general');
+
+            } catch (\Exception $e) {
+                Toastr::warning(translate('Push notification failed!'));
+            }
+        }
+        $table_order = TableOrder::where(['id' => $order->table_order_id])->first();
+
+        if($request->order_status == 'completed' && $order->payment_status == 'paid') {
+
+            if (isset($table_order->id)){
+                //dd($table_order);
+                $orders = Order::where(['table_order_id' => $table_order->id])->get();
+                $status = 1;
+                foreach ($orders as $order){
+                    if($order->order_status != 'completed'){
+                        $status=0;
+                        break;
+                    }
+                }
+
+                if ($status == 1){
+                    $table_order->branch_table_token_is_expired = 1;
+                    //dd($table_order);
+                    $table_order->save();
+                }
+            }
         }
 
-        //delivery man notification
-        if ($request->ordeurrent_pager_status == 'processing' && $order->delivery_man != null) {
-            $fcm_token = $order->delivery_man->fcm_token;
-            $value = translate('One of your order is in processing');
-            try {
-                if ($value) {
-                    $data = [
-                        'title' => translate('Order'),
-                        'description' => $value,
-                        'order_id' => $order['id'],
-                        'image' => '',
-                        'type'=>'order_status',
-                    ];
-                    Helpers::send_push_notif_to_device($fcm_token, $data);
+        if($request->order_status == 'canceled') {
+
+            if (isset($table_order->id)){
+                //dd($table_order);
+                $orders = Order::where(['table_order_id' => $table_order->id])->get();
+                $status = 1;
+                foreach ($orders as $order){
+                    if($order->order_status != 'canceled'){
+                        $status=0;
+                        break;
+                    }
                 }
-            } catch (\Exception $e) {
-                Toastr::warning(translate('Push notification failed for DeliveryMan!'));
+
+                if ($status == 1){
+                    $table_order->branch_table_token_is_expired = 1;
+                    //dd($table_order);
+                    $table_order->save();
+                }
             }
         }
 
         Toastr::success(translate('Order status updated!'));
+        // if($order->order_status == 'accepted'){
+        //     return Redirect::to("admin/orders/generate-invoice/{$order->id}");
+        // }
         return back();
     }
 
