@@ -169,7 +169,7 @@
                     </div>
                     <!-- End Header -->
 
-                    <div class="py-4 table-responsive">
+                     <div class="py-4 table-responsive">
                         <table class="table table-hover table-borderless table-thead-bordered table-nowrap table-align-middle card-table">
                             <thead class="thead-light">
                             <tr>
@@ -189,22 +189,37 @@
                             @php($total_tax=0)
                             @php($total_dis_on_pro=0)
                             @php($add_ons_cost=0)
+                            {{-- Added by Me --}}
+                            @php($extra_items_cost=0)
+                            @php($total_meal_items_cost=0)
                             @foreach($order->details as $detail)
                                 @php($product_details = json_decode($detail['product_details'], true))
+                                @php($structure = json_decode($product_details["structure"],true))
+                                {{-- @php(Illuminate\Support\Facades\Log::info($structure)) --}}
                                 @php($add_on_qtys=json_decode($detail['add_on_qtys'],true))
+                                @php($items=json_decode($detail['items'],true))
+                                @php($exta_items_quantity=0)
+                                @php($is_meal = json_decode($detail['is_meal'],true))
+                                @php($sides = json_decode($detail['sides'],true))
+                                @php($drinks = json_decode($detail['drinks'],true))
+                                @php($dips = json_decode($detail['dips'],true))
+
+                                @php($items_price=$detail['items_price'])
+                                @php($meal_items_price=0)
+                                @php($total_free = $product_details["item_ttl_free"])
 
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
                                         <div class="media gap-3 w-max-content">
-
+                                            @php(Illuminate\Support\Facades\Log::info($detail));
                                             <img class="img-fluid avatar avatar-lg"
-                                                 src="{{asset('storage/app/public/product/')}}/{{$detail->product['image']}}"
+                                                 src="{{asset('storage/app/public/product/')}}/{{$product_details["image"]}}"
                                                  onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
                                                  alt="Image Description">
 
                                             <div class="media-body text-dark fz-12">
-                                                <h6 class="text-capitalize">{{$detail->product['name']}}</h6>
+                                                <h6 class="text-capitalize">{{$product_details['name']}}</h6>
 
                                                 <div class="d-flex gap-2">
                                                     @php($variation_det = json_decode($detail['variation'],true))
@@ -213,40 +228,95 @@
                                                             <span>
                                                             <u><strong>{{translate('variation')}}</strong></u>
                                                             @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
-                                                                    <div class="font-size-sm text-body">
+                                                                @if ($key1 == "var_meal_price")
+                                                                    @continue
+                                                                @endif
+                                                                <div class="font-size-sm text-body">
                                                                 @if(isset($variation_det[0]['type']))
-                                                                            <span class="text-dark text-capitalize">{{$key1}} :  </span>
-                                                                            <span class="text-dark">{{ $key1 == 'price' ?  Helpers::set_symbol($variation) : $variation }}</span>
-                                                                        @elseif(isset($variation_det[0]['price']))
-                                                                            <span class="text-dark text-capitalize">{{$key1}} :  </span>
-                                                                            <span class="text-dark">{{ $key1 == 'price' ?  Helpers::set_symbol($variation) : $variation }}</span>
-                                                                        @endif
-                                                            </div>
-                                                                @endforeach
+                                                                    <span class="text-dark text-capitalize">{{$key1}} :  </span>
+                                                                    <span class="text-dark">{{ $key1 == 'price' ?  Helpers::set_symbol($variation) : $variation }}</span>
+                                                                @elseif(isset($variation_det[0]['price']))
+                                                                    <span class="text-dark text-capitalize">{{$key1}} :  </span>
+                                                                    <span class="text-dark">{{ $key1 == 'price' ?  Helpers::set_symbol($variation) : $variation }}</span>
+                                                                @endif
+                                                                </div>
+                                                            @endforeach
+                                                                @if ($is_meal == 1)
+                                                                    <u><strong>Meal Deal</strong></u>
+                                                                    @if(isset($sides))
+                                                                        @php($meal_items_price += $sides['Price'])
+                                                                        <div class="font-size-sm text-body">
+                                                                        <span class="text-dark text-capitalize">Side: </span>
+                                                                        <span class="text-dark">{{$sides['Name']}}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @if(isset($drinks))
+                                                                        @php($meal_items_price += $drinks['Price'])
+                                                                        <div class="font-size-sm text-body">
+                                                                        <span class="text-dark text-capitalize">Drink: </span>
+                                                                        <span class="text-dark">{{$drinks['Name']}}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @if(isset($dips))
+                                                                        @php($meal_items_price += $dips['Price'])
+                                                                        <div class="font-size-sm text-body">
+                                                                        <span class="text-dark text-capitalize">Dip: </span>
+                                                                        <span class="text-dark">{{$dips['Name']}}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @php($total_meal_items_cost += ($meal_items_price- $detail['discount_on_product']) * $detail['quantity'])
+                                                                @endif
                                                             </span>
                                                         @endif
                                                     @else
-                                                        <div class="font-size-sm text-body">
-                                                            <span class="text-dark">{{translate('price')}}  : {{\App\CentralLogics\Helpers::set_symbol($detail['price'])}}</span>
-                                                        </div>
+                                                        <span>
+                                                            <div class="font-size-sm text-body">
+                                                                <span class="text-dark">{{translate('price')}}  : {{\App\CentralLogics\Helpers::set_symbol($detail['price'])}}</span>
+                                                            </div>
+                                                            @if ($is_meal == 1)
+                                                                <u><strong>Meal Deal</strong></u>
+                                                                @if(isset($sides))
+                                                                    @php($meal_items_price += $sides['Price'])
+                                                                    <div class="font-size-sm text-body">
+                                                                    <span class="text-dark text-capitalize">Side: </span>
+                                                                    <span class="text-dark">{{$sides['Name']}}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @if(isset($drinks))
+                                                                    @php($meal_items_price += $drinks['Price'])
+                                                                    <div class="font-size-sm text-body">
+                                                                    <span class="text-dark text-capitalize">Drink: </span>
+                                                                    <span class="text-dark">{{$drinks['Name']}}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @if(isset($dips))
+                                                                    @php($meal_items_price += $dips['Price'])
+                                                                    <div class="font-size-sm text-body">
+                                                                    <span class="text-dark text-capitalize">Dip: </span>
+                                                                    <span class="text-dark">{{$dips['Name']}}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @php($total_meal_items_cost += $meal_items_price)
+                                                            @endif
+                                                        </span>
 
                                                     @endif
                                                     <br>
                                                     @php($addon_ids = json_decode($detail['add_on_ids'],true))
                                                     @if ($addon_ids)
-                                                        <span>
+                                                    <span>
                                                         <u><strong>{{translate('addons')}}</strong></u>
                                                         @foreach($addon_ids as $key2 =>$id)
-                                                                @php($addon=\App\Model\AddOn::find($id))
-                                                                @php($add_on_qtys==null? $add_on_qty=1 : $add_on_qty=$add_on_qtys[$key2])
-                                                                <div class="font-size-sm text-body">
+                                                            @php($addon=\App\Model\AddOn::find($id))
+                                                            @php($add_on_qtys==null? $add_on_qty=1 : $add_on_qty=$add_on_qtys[$key2])
+                                                            <div class="font-size-sm text-body">
                                                                     <span>{{$addon['name']}} :  </span>
                                                                     <span class="font-weight-semibold">
                                                                         {{$add_on_qty}} x {{ \App\CentralLogics\Helpers::set_symbol($addon['price']) }}
                                                                     </span>
                                                                 </div>
-                                                                @php($add_ons_cost+=$addon['price']*$add_on_qty)
-                                                            @endforeach
+                                                            @php($add_ons_cost+=$addon['price']*$add_on_qty)
+                                                        @endforeach
                                                     </span>
                                                     @endif
 
@@ -273,6 +343,61 @@
                                     </td>
                                     <td class="text-right">{{\App\CentralLogics\Helpers::set_symbol($amount-$tot_discount + $product_tax)}}</td>
                                 </tr>
+                                <tr>
+                                {{-- Added by Me --}}
+                                    <td colspan="6">
+                                        @if(count(is_countable($items)?$items:[]) > 0)
+                                            {{-- @php(Illuminate\Support\Facades\Log::info($items)) --}}
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="" class="control-label">{{translate('Name')}}</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <label for="" class="control-label">{{translate('Quantity')}}</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <label for="" class="control-label">{{translate('Free')}}</label>
+                                                    </td>
+                                                    {{-- <td class="text-center">
+                                                        <label for="" class="control-label">{{translate('To Pay')}}</label>
+                                                    </td> --}}
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach ($items as $key => $el)
+                                                        <tr>
+                                                            <td class="text-center">{{$el["name"]}}</td>
+                                                            <td class="text-center">{{$el["quantity"]}}</td>
+                                                            <td class="text-center">{{$structure[$key]["item_freeAmount"]}}</td>
+                                                            {{-- @php($amount_to_pay = 0)
+                                                            @if ($el["quantity"] > $structure[$key]["item_freeAmount"])
+                                                                @php($pay_qty=$el["quantity"] - $structure[$key]["item_freeAmount"])
+                                                                @php($exta_items_quantity+=$pay_qty)
+                                                                @if ($exta_items_quantity <=$total_free)
+                                                                    @php($amount_to_pay = 0)
+                                                                @else
+                                                                    @php($amount_to_pay = $structure[$key]["item_Price"]*$pay_qty)
+                                                                @endif
+                                                            @endif
+                                                            <td class="text-center">{{$amount_to_pay}}</td>
+                                                            @php($items_price += $amount_to_pay) --}}
+                                                        </tr>
+                                                @endforeach
+                                                @php($extra_items_cost+=($items_price * $detail['quantity']))
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="3" clas="text-left">Total Cost:(Deducting {{$total_free}} Free Items)</td>
+                                                        <td class="text-center">{{$items_price}}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        @endif
+                                    </td>
+                                </tr>
+                            
                                 @php($total_dis_on_pro += $tot_discount)
                                 @php($sub_total += $amount)
                                 @php($total_tax += $product_tax)
@@ -290,55 +415,94 @@
                                 <dl class="row">
                                     <dt class="col-6">
                                         <div class="d-flex max-w220 ml-auto">
-                                            {{translate('items')}} {{translate('price')}}:
+                                            {{translate('items')}} {{translate('price')}} <span>:</span>
                                         </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">{{ \App\CentralLogics\Helpers::set_symbol($sub_total) }}</dd>
-{{--                                <dl class="row text-right">--}}
 
                                     <dt class="col-6">
                                         <div class="d-flex max-w220 ml-auto">
-                                            {{translate('tax')}} / {{translate('vat')}}:
+                                            <span>{{translate('tax')}} / {{translate('vat')}}</span>
+                                            <span>:</span>
                                         </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">{{ \App\CentralLogics\Helpers::set_symbol($total_tax) }}</dd>
 
                                     <dt class="col-6">
+
                                         <div class="d-flex max-w220 ml-auto">
-                                            {{translate('addon')}} {{translate('cost')}}:
+                                            <span>{{translate('addon')}} {{translate('cost')}}</span>
+                                            <span>:</span>
                                         </div>
                                     </dt>
-                                    <dd class="col-6 text-dark text-right">{{ \App\CentralLogics\Helpers::set_symbol($add_ons_cost) }}</dd>
+                                    <dd class="col-6 text-dark text-right">
+                                        {{ \App\CentralLogics\Helpers::set_symbol($add_ons_cost) }}
+                                    </dd>
+                                    {{-- Added by Me --}}
+                                    <dt class="col-6">
+
+                                        <div class="d-flex max-w220 ml-auto">
+                                            <span>Extra Items Cost</span>
+                                            <span>:</span>
+                                        </div>
+                                    </dt>
+                                    <dd class="col-6 text-dark text-right">
+                                        {{ \App\CentralLogics\Helpers::set_symbol($extra_items_cost) }}
+                                    </dd>
+
+                                    <dt class="col-6">
+
+                                        <div class="d-flex max-w220 ml-auto">
+                                            <span>Meal Items Cost</span>
+                                            <span>:</span>
+                                        </div>
+                                    </dt>
+                                    <dd class="col-6 text-dark text-right">
+                                        {{ \App\CentralLogics\Helpers::set_symbol($total_meal_items_cost) }}
+                                    </dd>
 
                                     <dt class="col-6">
                                         <div class="d-flex max-w220 ml-auto">
-                                            {{translate('item')}} {{translate('discount')}}:
+                                            <span>{{translate('item')}} {{translate('discount')}}</span>
+                                            <span>:</span>
                                         </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">{{ \App\CentralLogics\Helpers::set_symbol($total_dis_on_pro) }}</dd>
 
                                     <dt class="col-6">
                                         <div class="d-flex max-w220 ml-auto">
-                                            {{translate('subtotal')}}:
+                                            <span>
+                                        {{translate('subtotal')}}</span>
+                                            <span>:</span>
                                         </div>
                                     </dt>
-                                    <dd class="col-6 text-dark text-right">{{ \App\CentralLogics\Helpers::set_symbol($sub_total =$sub_total+$total_tax+$add_ons_cost-$total_dis_on_pro) }}</dd>
+                                    <dd class="col-6 text-dark text-right">
+                                        {{ \App\CentralLogics\Helpers::set_symbol($sub_total =$sub_total+$total_tax+$add_ons_cost+$extra_items_cost+$total_meal_items_cost-$total_dis_on_pro) }}</dd>
 
                                     <dt class="col-6">
+
                                         <div class="d-flex max-w220 ml-auto">
-                                            {{translate('coupon')}} {{translate('discount')}}:
+                                            <span>{{translate('coupon')}} {{translate('discount')}}</span>
+                                            <span>:</span>
                                         </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">
                                         - {{ \App\CentralLogics\Helpers::set_symbol($order['coupon_discount_amount']) }}</dd>
 
                                     <dt class="col-6">
-                                        <div class="d-flex max-w220 ml-auto">{{translate('extra discount')}}:</div>
+                                        <div class="d-flex max-w220 ml-auto">
+                                            <span>{{translate('extra discount')}} </span>
+                                        <span>:</span>
+                                        </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">
                                         - {{ \App\CentralLogics\Helpers::set_symbol($order['extra_discount']) }}</dd>
                                     <dt class="col-6">
-                                        <div class="d-flex max-w220 ml-auto">{{translate('delivery')}} {{translate('fee')}}:</div>
+                                        <div class="d-flex max-w220 ml-auto">
+                                            <span>
+                                                {{translate('delivery')}} {{translate('fee')}}</span>
+                                            <span>:</span>
+                                        </div>
                                     </dt>
                                     <dd class="col-6 text-dark text-right">
                                         @if($order['order_type']=='take_away')
@@ -350,7 +514,10 @@
                                     </dd>
 
                                     <dt class="col-6 border-top pt-2 fz-16 font-weight-bold">
-                                        <div class="d-flex max-w220 ml-auto">{{translate('total')}}:</div>
+                                        <div class="d-flex max-w220 ml-auto">
+                                            <span>{{translate('total')}}</span>
+                                        <span>:</span>
+                                        </div>
                                     </dt>
                                     {{--<dd class="col-6 border-top pt-2 fz-16 font-weight-bold text-dark">{{ \App\CentralLogics\Helpers::set_symbol($sub_total+$del_c+$total_tax+$add_ons_cost-$order['coupon_discount_amount']-$order['extra_discount']) }}</dd> --}}
                                     <dd class="col-6 border-top pt-2 fz-16 font-weight-bold text-dark text-right">{{ \App\CentralLogics\Helpers::set_symbol($sub_total - $order['coupon_discount_amount'] - $order['extra_discount'] + $del_c) }}</dd>
@@ -372,18 +539,21 @@
                                 <div class="">
                                     <label class="font-weight-bold text-dark fz-14">{{translate('Change_Order_Status')}}</label>
                                     <select name="order_status" onchange="route_alert('{{route('branch.orders.status',['id'=>$order['id']])}}'+'&order_status='+ this.value,'{{\App\CentralLogics\translate("Change the order status to ") }}'+  this.value)" class="status custom-select">
-                                        <option value="confirmed" {{$order['order_status'] == 'confirmed'? 'selected' : ''}}> {{translate('confirmed')}}</option>
+                                        {{-- <option value="confirmed" {{$order['order_status'] == 'confirmed'? 'selected' : ''}}> {{translate('confirmed')}}</option> --}}
                                         @if($order['order_type'] != 'dine_in')
                                             <option value="pending" {{$order['order_status'] == 'pending'? 'selected' : ''}}> {{translate('pending')}}</option>
-                                            <option value="processing" {{$order['order_status'] == 'processing'? 'selected' : ''}}> {{translate('processing')}}</option>
+                                            {{-- <option value="processing" {{$order['order_status'] == 'processing'? 'selected' : ''}}> {{translate('processing')}}</option>
                                             <option value="out_for_delivery" {{$order['order_status'] == 'out_for_delivery'? 'selected' : ''}}>{{translate('Out_For_Delivery')}} </option>
-                                            <option value="delivered" {{$order['order_status'] == 'delivered'? 'selected' : ''}}>{{translate('Delivered')}} </option><option value="returned" {{$order['order_status'] == 'returned'? 'selected' : ''}}> {{translate('Returned')}}</option>
-                                            <option value="failed" {{$order['order_status'] == 'failed'? 'selected' : ''}}>{{translate('Failed_to_Deliver')}} </option>
+                                            <option value="delivered" {{$order['order_status'] == 'delivered'? 'selected' : ''}}>{{translate('Delivered')}} </option>
+                                            <option value="returned" {{$order['order_status'] == 'returned'? 'selected' : ''}}> {{translate('Returned')}}</option>
+                                            <option value="failed" {{$order['order_status'] == 'failed'? 'selected' : ''}}>{{translate('Failed_to_Deliver')}} </option> --}}
+                                            <option value="accepted" {{$order['order_status'] == 'accepted'? 'selected' : ''}}> {{'Accepted'}}</option>
+                                            <option value="declined" {{$order['order_status'] == 'declined'? 'selected' : ''}}>{{'Declined'}} </option>
                                         @else
                                             <option value="cooking" {{$order['order_status'] == 'cooking'? 'selected' : ''}}> {{translate('cooking')}}</option>
                                             <option value="completed" {{$order['order_status'] == 'completed'? 'selected' : ''}}> {{translate('completed')}}</option>
                                         @endif
-                                        <option value="canceled" {{$order['order_status'] == 'canceled'? 'selected' : ''}}>{{translate('canceled')}} </option>
+                                            <option value="canceled" {{$order['order_status'] == 'canceled'? 'selected' : ''}}>{{translate('canceled')}} </option>
                                     </select>
                                 </div>
                                 <div class="">

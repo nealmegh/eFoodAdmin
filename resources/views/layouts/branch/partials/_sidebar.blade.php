@@ -139,7 +139,7 @@
                                         </span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{Request::is('branch/orders/list/confirmed')?'active':''}}">
+                                {{-- <li class="nav-item {{Request::is('branch/orders/list/confirmed')?'active':''}}">
                                     <a class="nav-link " href="{{route('branch.orders.list',['confirmed'])}}" title="">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span class="text-truncate sidebar--badge-container">
@@ -149,8 +149,30 @@
                                             </span>
                                         </span>
                                     </a>
-                                </li>
-                                <li class="nav-item {{Request::is('branch/orders/list/processing')?'active':''}}">
+                                </li> --}}
+                                <li class="nav-item {{Request::is('branch/orders/list/accepted')?'active':''}}">
+                                        <a class="nav-link " href="{{route('branch.orders.list',['accepted'])}}" title="">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                {{"Accepted"}}
+                                                    <span class="badge badge-soft-success badge-pill ml-1">
+                                                    {{\App\Model\Order::notPos()->notDineIn()->where(['order_status'=>'accepted','branch_id'=>auth('branch')->id()])->notSchedule()->count()}}
+                                                </span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item {{Request::is('branch/orders/list/declined')?'active':''}}">
+                                        <a class="nav-link " href="{{route('branch.orders.list',['declined'])}}" title="">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                {{"Declined"}}
+                                                    <span class="badge badge-soft-success badge-pill ml-1">
+                                                    {{\App\Model\Order::notPos()->notDineIn()->where(['order_status'=>'declined','branch_id'=>auth('branch')->id()])->notSchedule()->count()}}
+                                                </span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                {{-- <li class="nav-item {{Request::is('branch/orders/list/processing')?'active':''}}">
                                     <a class="nav-link " href="{{route('branch.orders.list',['processing'])}}" title="">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span class="text-truncate sidebar--badge-container">
@@ -205,7 +227,7 @@
                                             </span>
                                         </span>
                                     </a>
-                                </li>
+                                </li> --}}
 
                                 <li class="nav-item {{Request::is('branch/orders/list/canceled')?'active':''}}">
                                     <a class="nav-link " href="{{route('branch.orders.list',['canceled'])}}" title="">

@@ -82,18 +82,37 @@
 <!-- End Footer -->
 
     <div class="modal fade" id="popup-modal">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12">
-                            <center>
-                                <h2 style="color: rgba(96,96,96,0.68)">
+                            {{-- <center> --}}
+                                <h2>
                                     <i class="tio-shopping-cart-outlined"></i> {{ translate('You have new order, Check Please.') }}
                                 </h2>
+                                <button id='modal-check-order' class="btn btn-primary">
+                                    Click To View Details
+                                </button>
+                                {{-- <table class="table table-bordered mt-3" id="modaldetails-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 10%">{{ translate('QTY') }}</th>
+                                            <th class="">{{ translate('DESC') }}</th>
+                                            <th style="text-align:right; padding-right:4px">{{ translate('Price') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table> --}}
+                                <div id='noti-print'></div>
                                 <hr>
-                                <button onclick="check_order()" class="btn btn-primary">{{ translate('Ok, let me check') }}</button>
-                            </center>
+                                <div class="row">
+                                    <button id='modal-accept' type="button" class="btn btn-outline-success col m-1">Accept</button>
+                                    <button id='modal-decline' type="button" class="btn btn-outline-danger col m-1">Decline</button>
+                                </div>
+                                {{-- <button onclick="check_order()" class="btn btn-primary">{{ translate('Ok, let me check') }}</button> --}}
+                            {{-- </center> --}}
                         </div>
                     </div>
                 </div>
@@ -167,19 +186,61 @@
     }
 </script>
 <script>
+    var modalshown = false;
+    
+    function printRecipt(divName,id) {
+        var originalContents = document.body.innerHTML;
+        $('h5').css('font-size',"16pt");
+        $('table').css('font-size',"14pt");
+        $('#printaddr').css('font-size',"13pt");
+
+        var printContents = document.getElementById(divName).innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        //document.body.innerHTML = originalContents;
+        location.href=`${window.location.origin}/branch/orders/status?id=${id}&order_status=accepted`;
+    }
     setInterval(function () {
-        $.get({
-            url: '{{route('branch.get-restaurant-data')}}',
-            dataType: 'json',
-            success: function (response) {
-                let data = response.data;
-                if (data.new_order > 0) {
-                    playAudio();
-                    $('#popup-modal').appendTo("body").modal('show');
-                }
-            },
-        });
-    }, 10000);
+            $.get({
+                url: '{{route('branch.get-restaurant-data')}}',
+                dataType: 'json',
+                success: function (response) {
+                    let data = response.data;
+                    let order = JSON.parse(data.order);
+                    console.log(order);
+                    let details = order.details;
+                    let addons = JSON.parse(data.addons);
+                    if (data.new_order > 0) {
+                        playAudio();
+                        $("#noti-print").html(data.view);
+                        if(!modalshown){
+                            modalshown = true;
+                            $('#popup-modal').appendTo("body").modal('show');
+                        }
+                         $( '#popup-modal' ).on( 'hidden.bs.modal', function () {
+                            modalshown = false;
+                            $( '#popup-modal' ).off( 'hidden.bs.modal');
+                        } );
+                        $("#modal-check-order").off("click");
+                        $("#modal-accept").off("click");
+                        $("#modal-decline").off("click");
+
+
+                        $('#modal-check-order').click(()=>{
+                            window.open(
+                            `${window.location.origin}/branch/orders/details/${order.id}`, "_blank");
+                        });
+                        $('#modal-accept').click(()=>{
+                            //location.href=`${window.location.origin}/branch/orders/status?id=${order.id}&order_status=accepted`
+                            printRecipt('printableArea',order.id);
+                        });
+                        $('#modal-decline').click(()=>{
+                            location.href=`${window.location.origin}/branch/orders/status?id=${order.id}&order_status=declined`
+                        });
+                    }
+                },
+            });
+        }, 10000);
 
     function check_order() {
         location.href = '{{route('branch.order.list',['status'=>'all'])}}';

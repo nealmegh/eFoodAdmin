@@ -59,8 +59,7 @@ Route::group(['namespace' => 'Branch', 'as' => 'branch.'], function () {
             Route::get('ajax-change-delivery-time-date/{order_id}', 'OrderController@ajax_change_delivery_time_date')->name('ajax-change-delivery-time-date');
         });
 
-        // Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['app_activate:' . APPS['table_app']['software_id']]], function () {
-        Route::group(['prefix' => 'table/order', 'as' => 'table.order.'], function () {
+        Route::group(['prefix' => 'table/order', 'as' => 'table.order.', 'middleware' => ['app_activate:' . APPS['table_app']['software_id']]], function () {
             Route::get('list/{status}', 'TableOrderController@order_list')->name('list');
             Route::get('details/{id}', 'TableOrderController@order_details')->name('details');
             Route::get('running', 'TableOrderController@table_running_order')->name('running');
@@ -77,8 +76,7 @@ Route::group(['namespace' => 'Branch', 'as' => 'branch.'], function () {
             Route::post('search', 'OrderController@search')->name('search');
         });
 
-        // Route::group(['prefix' => 'table', 'as' => 'table.','middleware'=>[ 'app_activate:' . APPS['table_app']['software_id']]], function () {
-        Route::group(['prefix' => 'table'], function () {
+        Route::group(['prefix' => 'table', 'as' => 'table.','middleware'=>[ 'app_activate:' . APPS['table_app']['software_id']]], function () {
             Route::get('list', 'TableController@list')->name('list');
             Route::post('store', 'TableController@store')->name('store');
             Route::get('edit/{id}', 'TableController@edit')->name('edit');
@@ -98,8 +96,7 @@ Route::group(['namespace' => 'Branch', 'as' => 'branch.'], function () {
             Route::get('status/{id}/{status}', 'KitchenController@status')->name('status');
         });
 
-        // Route::group(['prefix' => 'promotion', 'as' => 'promotion.','middleware'=>[ 'app_activate:' . APPS['table_app']['software_id']]], function () {
-        Route::group(['prefix' => 'promotion', 'as' => 'promotion.'], function () {
+        Route::group(['prefix' => 'promotion', 'as' => 'promotion.','middleware'=>[ 'app_activate:' . APPS['table_app']['software_id']]], function () {
             Route::get('create', 'BranchPromotionController@create')->name('create');
             Route::post('store', 'BranchPromotionController@store')->name('store');
             Route::get('edit/{id}', 'BranchPromotionController@edit')->name('edit');

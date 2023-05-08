@@ -69,64 +69,107 @@
                         </a>
                     </div>
 
-                    <div class="col-sm-6 col-lg-3">
-                        <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'confirmed'])}}">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                                    <img src="{{asset('public/assets/admin/img/icons/confirmed.png')}}" alt="dashboard" class="oder--card-icon">
-                                    <span>{{translate('confirmed')}}</span>
-                                </h6>
-                                <span class="card-title text-107980">
-                                    {{$order_count['confirmed']}}
+                    {{-- <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'confirmed'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/confirmed.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{translate('confirmed')}}</span>
+                                    </h6>
+                                    <span class="card-title text-107980">
+                                {{$order_count['confirmed']}}
                             </span>
-                            </div>
-                        </a>
-                    </div>
+                                </div>
+                            </a>
+                        </div> --}}
 
-                    <div class="col-sm-6 col-lg-3">
-                        <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'processing'])}}">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                                    <img src="{{asset('public/assets/admin/img/icons/packaging.png')}}" alt="dashboard" class="oder--card-icon">
-                                    <span>{{translate('processing')}}</span>
-                                </h6>
-                                <span class="card-title text-danger">
-                                    {{$order_count['processing']}}
+                        <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'confirmed'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/confirmed.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{'Accepted'}}</span>
+                                    </h6>
+                                    <span class="card-title text-107980">
+                                {{$order_count['accepted']}}
                             </span>
-                            </div>
-                        </a>
-                    </div>
+                                </div>
+                            </a>
+                        </div>
 
-                    <div class="col-sm-6 col-lg-3">
-                        <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'out_for_delivery'])}}">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                                    <img src="{{asset('public/assets/admin/img/icons/out_for_delivery.png')}}" alt="dashboard" class="oder--card-icon">
-                                    <span>{{translate('out_for_delivery')}}</span>
-                                </h6>
-                                <span class="card-title text-00B2BE">
-                                    {{$order_count['out_for_delivery']}}
+                        <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'failed'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/failed_to_deliver.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{'Declined'}}</span>
+                                    </h6>
+                                    <span class="card-title text-danger">
+                                        {{$order_count['declined']}}
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+
+                        {{-- <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'processing'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/packaging.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{translate('processing')}}</span>
+                                    </h6>
+                                    <span class="card-title text-danger">
+                                {{$order_count['processing']}}
                             </span>
-                            </div>
-                        </a>
-                    </div>
+                                </div>
+                            </a>
+                        </div> --}}
 
-                    <div class="col-sm-6 col-lg-3">
-                        <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'delivered'])}}">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                                    <img src="{{asset('public/assets/admin/img/icons/delivered.png')}}" alt="dashboard" class="oder--card-icon">
-                                    <span>{{translate('delivered')}}</span>
-                                </h6>
-                                <span class="card-title text-success">
+                        {{-- <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'out_for_delivery'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/out_for_delivery.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{translate('out_for_delivery')}}</span>
+                                    </h6>
+                                    <span class="card-title text-00B2BE">
+                                {{$order_count['out_for_delivery']}}
+                            </span>
+                                </div>
+                            </a>
+                        </div> --}}
+
+                        {{-- <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'delivered'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/delivered.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{translate('delivered')}}</span>
+                                    </h6>
+                                    <span class="card-title text-success">
                                 {{$order_count['delivered']}}
                             </span>
-                            </div>
-                        </a>
-                    </div>
+                                </div>
+                            </a>
+                        </div> --}}
+
+                        <!-- Static Cancel -->
+                        <div class="col-sm-6 col-lg-3">
+                            <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'canceled'])}}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
+                                        <img src="{{asset('public/assets/admin/img/icons/canceled.png')}}" alt="dashboard" class="oder--card-icon">
+                                        <span>{{translate('canceled')}}</span>
+                                    </h6>
+                                    <span class="card-title text-danger">
+                                {{$order_count['canceled']}}
+                            </span>
+                                </div>
+                            </a>
+                        </div>
 
                     <!-- Static Cancel -->
-                    <div class="col-sm-6 col-lg-3">
+                    {{-- <div class="col-sm-6 col-lg-3">
                         <a class="order--card h-100" href="{{route('branch.orders.list', ['status' => 'canceled'])}}">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -166,7 +209,7 @@
                             </span>
                             </div>
                         </a>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             @endif
@@ -203,7 +246,7 @@
                                     </a>
                                 </li>
 {{--                                <li>--}}
-{{--                                    <a href="{{route('admin.orders.export')}}" class="dropdown-item d-flex align-items-center gap-2">--}}
+{{--                                    <a href="{{route('branch.orders.export')}}" class="dropdown-item d-flex align-items-center gap-2">--}}
 {{--                                        <i class="tio-pages"></i>--}}
 {{--                                        {{translate('Bulk_Export')}}--}}
 {{--                                    </a>--}}
